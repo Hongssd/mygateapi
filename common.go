@@ -86,9 +86,8 @@ type APIType int
 
 const (
 	REST APIType = iota
-	WS_PUBLIC
-	WS_PRIVATE
-	WS_BUSINESS
+	WS_SPOT
+	WS_FUTURES
 )
 
 type Client struct {
@@ -253,7 +252,6 @@ func GateGetRestHostByAPIType(apiType APIType) string {
 		} else {
 			return TEST_GATE_API_HTTP
 		}
-	case WS_PUBLIC: //TODO
 	}
 
 	return ""
