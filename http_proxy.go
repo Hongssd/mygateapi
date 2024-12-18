@@ -43,6 +43,9 @@ func SetUseProxy(useProxy bool, proxyUrls ...string) {
 	for _, proxyUrl := range proxyUrls {
 		newProxyList = append(newProxyList, &RestProxy{
 			ProxyUrl: proxyUrl,
+			Weight: ProxyWeight{
+				RemainWeight: 200,
+			},
 		})
 	}
 	proxyList = newProxyList

@@ -165,3 +165,23 @@ type PrivateRestSpotOrdersPostRes struct {
 	FinishAs           string `json:"finish_as"`            //string false 只读 订单结束方式 open-等待处理 filled-全部成交 cancelled-订单撤销 liquidate_cancelled-爆仓撤销 small-订单数量太小 depth_not_enough-深度不足导致撤单 trader_not_enough-对手方不足导致撤单 ioc-未立即成交，因为 tif 设置为 ioc poc-未满足挂单策略，因为 tif 设置为 poc fok-未立即完全成交，因为 tif 设置为 fok stp-订单发生自成交限制而被撤销 unknown-未知
 	ActionMode         string `json:"action_mode"`          //string false 只写 处理模式 ACK: 异步模式，只返回订单关键字段 RESULT: 无清算信息 FULL: 完整模式
 }
+
+type PrivateRestSpotAccountBookResRow struct {
+	ID       string `json:"id"`       //string 账户变更记录 ID
+	Time     int64  `json:"time"`     //integer(int64) 账户变更时间戳，毫秒单位
+	Currency string `json:"currency"` //string 变更币种
+	Change   string `json:"change"`   //string 变更金额，正数表示转入，负数表示转出
+	Balance  string `json:"balance"`  //string 变更后账户余额
+	Type     string `json:"type"`     //string 账户变更类型 , 详见资产流水类型
+	Text     string `json:"text"`     //string 附加信息
+}
+
+type PrivateRestSpotAccountBookRes []PrivateRestSpotAccountBookResRow
+
+type PrivateRestSpotOpenOrdersResRow struct {
+	CurrencyPair string                         `json:"currency_pair"` //string 交易对
+	Total        int                            `json:"total"`         //integer 该交易对当前页面的挂单总数
+	Orders       []PrivateRestSpotOrdersPostRes `json:"orders"`        //array None object 现货单详情
+}
+
+type PrivateRestSpotOpenOrdersRes []PrivateRestSpotOpenOrdersResRow

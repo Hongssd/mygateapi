@@ -182,3 +182,82 @@ func (api *PrivateRestSpotOrdersPostAPI) StpAct(stpAct string) *PrivateRestSpotO
 	api.req.StpAct = GetPointer(stpAct)
 	return api
 }
+
+type PrivateRestSpotAccountBookReq struct {
+	Currency *string `json:"currency"` //string	否	指定币种名称查询
+	From     *int64  `json:"from"`     //integer(int64)	否	查询记录的起始时间
+	To       *int64  `json:"to"`       //integer(int64)	否	查询记录的结束时间，不指定则默认为当前时间
+	Page     *int    `json:"page"`     //integer(int32)	否	列表页数
+	Limit    *int    `json:"limit"`    //integer	否	列表返回的最大数量
+	Type     *string `json:"type"`     //string	否	指定账户变动类型查询，不指定则包含全部变动类型
+}
+
+// currency	请求参数	string	否	指定币种名称查询
+func (api *PrivateRestSpotAccountBookAPI) Currency(currency string) *PrivateRestSpotAccountBookAPI {
+	api.req.Currency = GetPointer(currency)
+	return api
+}
+
+// from	请求参数	integer(int64)	否	查询记录的起始时间
+func (api *PrivateRestSpotAccountBookAPI) From(from int64) *PrivateRestSpotAccountBookAPI {
+	api.req.From = GetPointer(from)
+	return api
+}
+
+// to	请求参数	integer(int64)	否	查询记录的结束时间，不指定则默认为当前时间
+func (api *PrivateRestSpotAccountBookAPI) To(to int64) *PrivateRestSpotAccountBookAPI {
+	api.req.To = GetPointer(to)
+	return api
+}
+
+// page	请求参数	integer(int32)	否	列表页数
+func (api *PrivateRestSpotAccountBookAPI) Page(page int) *PrivateRestSpotAccountBookAPI {
+	api.req.Page = GetPointer(page)
+	return api
+}
+
+// limit	请求参数	integer	否	列表返回的最大数量
+func (api *PrivateRestSpotAccountBookAPI) Limit(limit int) *PrivateRestSpotAccountBookAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// type	请求参数	string	否	指定账户变动类型查询，不指定则包含全部变动类型
+func (api *PrivateRestSpotAccountBookAPI) Type(t string) *PrivateRestSpotAccountBookAPI {
+	api.req.Type = GetPointer(t)
+	return api
+}
+
+type PrivateRestSpotAccountBookAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotAccountBookReq
+}
+
+type PrivateRestSpotOpenOrdersReq struct {
+	Page    *int    `json:"page"`    //integer(int32)	否	列表页数
+	Limit   *int    `json:"limit"`   //integer	否	每个交易对每页最多返回的数量
+	Account *string `json:"account"` //string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+}
+
+// page	请求参数	integer(int32)	否	列表页数
+func (api *PrivateRestSpotOpenOrdersAPI) Page(page int) *PrivateRestSpotOpenOrdersAPI {
+	api.req.Page = GetPointer(page)
+	return api
+}
+
+// limit	请求参数	integer	否	每个交易对每页最多返回的数量
+func (api *PrivateRestSpotOpenOrdersAPI) Limit(limit int) *PrivateRestSpotOpenOrdersAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// account	请求参数	string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+func (api *PrivateRestSpotOpenOrdersAPI) Account(account string) *PrivateRestSpotOpenOrdersAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+type PrivateRestSpotOpenOrdersAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotOpenOrdersReq
+}
