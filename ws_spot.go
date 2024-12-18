@@ -55,3 +55,30 @@ func (ws *SpotWsStreamClient) SubscribeCandleMultiple(symbols, intervals []strin
 
 	return subscription, nil
 }
+
+// !all订阅全部订单推送
+func (ws *SpotWsStreamClient) SubscribeOrders(symbols ...string) (*MultipleSubscription[WsSubscribeResult[WsOrder]], error) {
+	//订阅订单推送频道
+	channel := "spot.orders"
+	if len(symbols) == 0 {
+		symbols = []string{"!all"}
+	}
+
+	var thisSubs []*Subscription[WsSubscribeResult[WsOrder]]
+	payload := symbols
+	subKeys := symbols
+
+	thisSub, err := subscribe[WsSubscribeResult[WsOrder]](&ws.WsStreamClient, channel, SUBSCRIBE, payload, subKeys, true)
+	if err != nil {
+		return nil, err
+	}
+	ws.orderSubMap.Store(subKeys[0], thisSub)
+	thisSubs = append(thisSubs, thisSub)
+
+	subscription, err := mergeSubscription(thisSubs...)
+	if err != nil {
+		return nil, err
+	}
+
+	return subscription, nil
+}

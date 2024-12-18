@@ -39,7 +39,7 @@ const (
 var (
 	WebsocketTimeout        = time.Second * 60
 	WebsocketPingTicker     = time.Second * 5
-	WebsocketKeepalive      = false
+	WebsocketKeepalive      = true
 	SUBSCRIBE_INTERVAL_TIME = 500 * time.Millisecond //订阅间隔
 )
 
@@ -61,6 +61,8 @@ type WsStreamClient struct {
 
 	currentSubMap MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //当前订阅成功的所有结果
 	candleSubMap  MySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]        //K线推送订阅频道
+
+	orderSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsOrder]]] //订单推送订阅频道
 
 	resultChan chan []byte
 	errChan    chan error
@@ -429,7 +431,7 @@ func (ws *WsStreamClient) reSubscribeForReconnect() error {
 	var errG errgroup.Group
 	ws.currentSubMap.Range(func(reqId int64, sub *Subscription[WsSubscribeResult[WsSubscribeStatus]]) bool {
 		errG.Go(func() error {
-			newSub, err := subscribe[WsSubscribeResult[WsSubscribeStatus]](ws, sub.Req.Channel, SUBSCRIBE, sub.Req.Payload, sub.SubKeys, sub.Req.Auth == nil)
+			newSub, err := subscribe[WsSubscribeResult[WsSubscribeStatus]](ws, sub.Req.Channel, SUBSCRIBE, sub.Req.Payload, sub.SubKeys, sub.Req.Auth != nil)
 			if err != nil {
 				log.Error(err)
 				return err
@@ -505,7 +507,7 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 				}
 
 				//处理正常数据的返回结果
-				//K线处理
+				//现货K线处理
 				if strings.Contains(string(data), "spot.candlesticks") && strings.Contains(string(data), "event\":\"update") {
 					c, err := handleWsData[WsCandles](data)
 					//使用交易所规则，interval_symbol作为唯一key
@@ -519,7 +521,8 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-				//K线处理
+
+				//合约K线处理
 				if strings.Contains(string(data), "futures.candlesticks") && strings.Contains(string(data), "event\":\"update") {
 					c, err := handleWsData[[]WsFutureCandles](data)
 					if err != nil {
@@ -527,7 +530,7 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 						continue
 					}
 					//使用交易所规则，interval_symbol作为唯一key
-					cs := splitSlice[WsFutureCandles, WsCandles](c, func(o WsFutureCandles) *WsCandles {
+					cs := splitSlice(c, func(o WsFutureCandles) *WsCandles {
 						return &WsCandles{
 							Timestamp:   strconv.FormatInt(o.Timestamp, 10),
 							Interval:    o.Interval,
@@ -549,6 +552,38 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 							}
 							sub.resultChan <- *candle
 						}
+					}
+					continue
+				}
+
+				//现货订单推送处理
+				if strings.Contains(string(data), "spot.orders") && strings.Contains(string(data), "event\":\"update") {
+					o, err := handleWsData[[]WsOrder](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					orders := splitSlice(o, func(o WsOrder) *WsOrder {
+						return &o
+					})
+					for _, order := range orders {
+						keyAll := "!all"
+						if sub, ok := ws.orderSubMap.Load(keyAll); ok {
+							if err != nil {
+								sub.errChan <- err
+								continue
+							}
+							sub.resultChan <- *order
+						}
+						key := order.Result.CurrencyPair
+						if sub, ok := ws.orderSubMap.Load(key); ok {
+							if err != nil {
+								sub.errChan <- err
+								continue
+							}
+							sub.resultChan <- *order
+						}
+
 					}
 					continue
 				}
@@ -663,7 +698,6 @@ func keepAlive(c *websocket.Conn, timeout, tickerTimeout time.Duration) {
 
 	lastResponse := time.Now()
 	c.SetPongHandler(func(msg string) error {
-		log.Warn(msg)
 		lastResponse = time.Now()
 		return nil
 	})
@@ -674,7 +708,7 @@ func keepAlive(c *websocket.Conn, timeout, tickerTimeout time.Duration) {
 			deadline := time.Now().Add(10 * time.Second)
 			err := c.WriteControl(websocket.PingMessage, []byte{}, deadline)
 			if err != nil {
-				log.Error(err)
+				//log.Error(err)
 				return
 			}
 			<-ticker.C
