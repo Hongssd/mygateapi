@@ -27,3 +27,29 @@ func (api *PrivateRestSpotOrdersPostAPI) Do() (*GateRestRes[PrivateRestSpotOrder
 	}
 	return gateCallApiWithSecret[PrivateRestSpotOrdersPostRes](api.client.c, url, reqBody, POST)
 }
+
+// gate PrivateSpotAccountBook PrivateRest接口 GET 查询现货账户变动历史
+func (client *PrivateRestClient) NewPrivateRestPrivateAccountBook() *PrivateRestSpotAccountBookAPI {
+	return &PrivateRestSpotAccountBookAPI{
+		client: client,
+		req:    &PrivateRestSpotAccountBookReq{},
+	}
+}
+
+func (api *PrivateRestSpotAccountBookAPI) Do() (*GateRestRes[PrivateRestSpotAccountBookRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateSpotAccountBook])
+	return gateCallApiWithSecret[PrivateRestSpotAccountBookRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
+// gate PrivateSpotOpenOrders PrivateRest接口 GET 查询所有挂单
+func (client *PrivateRestClient) NewPrivateRestPrivateOpenOrders() *PrivateRestSpotOpenOrdersAPI {
+	return &PrivateRestSpotOpenOrdersAPI{
+		client: client,
+		req:    &PrivateRestSpotOpenOrdersReq{},
+	}
+}
+
+func (api *PrivateRestSpotOpenOrdersAPI) Do() (*GateRestRes[PrivateRestSpotOpenOrdersRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateSpotOpenOrders])
+	return gateCallApiWithSecret[PrivateRestSpotOpenOrdersRes](api.client.c, url, NIL_REQBODY, GET)
+}
