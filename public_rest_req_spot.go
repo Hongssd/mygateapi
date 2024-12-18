@@ -8,6 +8,26 @@ type PublicRestSpotCurrenciesAPI struct {
 	req    *PublicRestSpotCurrenciesReq
 }
 
+type PublicRestSpotCurrenciesCurrencyReq struct {
+	Currency *string `json:"currency"`
+	Test     *string `json:"test"`
+}
+
+type PublicRestSpotCurrenciesCurrencyAPI struct {
+	client *PublicRestClient
+	req    *PublicRestSpotCurrenciesCurrencyReq
+}
+
+func (api *PublicRestSpotCurrenciesCurrencyAPI) Currency(currency string) *PublicRestSpotCurrenciesCurrencyAPI {
+	api.req.Currency = GetPointer(currency)
+	return api
+}
+
+func (api *PublicRestSpotCurrenciesCurrencyAPI) Test(test string) *PublicRestSpotCurrenciesCurrencyAPI {
+	api.req.Test = GetPointer(test)
+	return api
+}
+
 type PublicRestSpotCurrencyPairsAllReq struct{}
 
 type PublicRestSpotCurrencyPairsAllAPI struct {

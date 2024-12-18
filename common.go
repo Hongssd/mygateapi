@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha512"
 	"encoding/hex"
+	"regexp"
 	"sync"
 	"time"
 
@@ -182,11 +183,45 @@ func gateCallApiWithSecret[T any](client *Client, url url.URL, reqBody []byte, m
 
 // URL标准封装 带路径参数
 func gateHandlerRequestAPIWithPathQueryParam[T any](apiType APIType, request *T, name string) url.URL {
-	query := gateHandlerReq(request)
+	// 正则匹配name字符串中包含{xxx}的参数，其中xxx为路径参数名
+	// 定义正则表达式，匹配 `{xxx}` 的部分
+	re := regexp.MustCompile(`\{([a-zA-Z0-9_]+)\}`)
+	// 查找所有匹配的子字符串
+	matches := re.FindAllStringSubmatch(name, -1)
+	// 提取路径参数名
+	var params []string
+	for _, match := range matches {
+		if len(match) > 1 {
+			params = append(params, match[1])
+		}
+	}
+	//fmt.Println("路径参数:", params)
+
+	//将指定参数回填
+	// 参数值映射
+	query, paramsMap := gateHandlerReq(request, params...)
+
+	result := name
+	if len(paramsMap) != 0 {
+		// 替换占位符
+		result = re.ReplaceAllStringFunc(name, func(m string) string {
+			// 提取参数名
+			key := re.FindStringSubmatch(m)[1]
+			// 替换为参数值
+			if value, exists := paramsMap[key]; exists {
+				return value
+			}
+			// 如果参数未提供，保留原占位符
+			return m
+		})
+	}
+
+	//fmt.Println("填充后的路径:", result)
+
 	u := url.URL{
 		Scheme:   "https",
 		Host:     GateGetRestHostByAPIType(apiType),
-		Path:     name,
+		Path:     result,
 		RawQuery: query,
 	}
 	return u
@@ -204,44 +239,79 @@ func gateHandlerRequestAPIWithoutPathQueryParam(apiType APIType, name string) ur
 	return u
 }
 
-func gateHandlerReq[T any](req *T) string {
+func gateHandlerReq[T any](req *T, pathParams ...string) (string, map[string]string) {
 	var argBuffer bytes.Buffer
+	pathParamsMap := map[string]string{}
 
 	t := reflect.TypeOf(req)
 	v := reflect.ValueOf(req)
 	if v.IsNil() {
-		return ""
+		return "", pathParamsMap
 	}
 	t = t.Elem()
 	v = v.Elem()
 	count := v.NumField()
 	for i := 0; i < count; i++ {
 		argName := t.Field(i).Tag.Get("json")
-		switch v.Field(i).Elem().Kind() {
-		case reflect.String:
-			argBuffer.WriteString(argName + "=" + v.Field(i).Elem().String() + "&")
-		case reflect.Int, reflect.Int64:
-			argBuffer.WriteString(argName + "=" + strconv.FormatInt(v.Field(i).Elem().Int(), BIT_BASE_10) + "&")
-		case reflect.Float32, reflect.Float64:
-			argBuffer.WriteString(argName + "=" + decimal.NewFromFloat(v.Field(i).Elem().Float()).String() + "&")
-		case reflect.Bool:
-			argBuffer.WriteString(argName + "=" + strconv.FormatBool(v.Field(i).Elem().Bool()) + "&")
-		case reflect.Struct:
-			sv := reflect.ValueOf(v.Field(i).Interface())
-			ToStringMethod := sv.MethodByName("String")
-			args := make([]reflect.Value, 0)
-			result := ToStringMethod.Call(args)
-			argBuffer.WriteString(argName + "=" + result[0].String() + "&")
-		case reflect.Slice:
-			s := v.Field(i).Interface()
-			d, _ := json.Marshal(s)
-			argBuffer.WriteString(argName + "=" + url.QueryEscape(string(d)) + "&")
-		case reflect.Invalid:
-		default:
-			log.Errorf("req type error %s:%s", argName, v.Field(i).Elem().Kind())
+		isPathParam := false
+		for _, pathParam := range pathParams {
+			if argName == pathParam {
+				isPathParam = true
+				break
+			}
 		}
+		if isPathParam {
+			switch v.Field(i).Elem().Kind() {
+			case reflect.String:
+				pathParamsMap[argName] = v.Field(i).Elem().String()
+			case reflect.Int, reflect.Int64:
+				pathParamsMap[argName] = strconv.FormatInt(v.Field(i).Elem().Int(), BIT_BASE_10)
+			case reflect.Float32, reflect.Float64:
+				pathParamsMap[argName] = decimal.NewFromFloat(v.Field(i).Elem().Float()).String()
+			case reflect.Bool:
+				pathParamsMap[argName] = strconv.FormatBool(v.Field(i).Elem().Bool())
+			case reflect.Struct:
+				sv := reflect.ValueOf(v.Field(i).Interface())
+				ToStringMethod := sv.MethodByName("String")
+				args := make([]reflect.Value, 0)
+				result := ToStringMethod.Call(args)
+				pathParamsMap[argName] = result[0].String()
+			case reflect.Slice:
+				s := v.Field(i).Interface()
+				d, _ := json.Marshal(s)
+				pathParamsMap[argName] = url.QueryEscape(string(d))
+			case reflect.Invalid:
+			default:
+				log.Errorf("req type error %s:%s", argName, v.Field(i).Elem().Kind())
+			}
+		} else {
+			switch v.Field(i).Elem().Kind() {
+			case reflect.String:
+				argBuffer.WriteString(argName + "=" + v.Field(i).Elem().String() + "&")
+			case reflect.Int, reflect.Int64:
+				argBuffer.WriteString(argName + "=" + strconv.FormatInt(v.Field(i).Elem().Int(), BIT_BASE_10) + "&")
+			case reflect.Float32, reflect.Float64:
+				argBuffer.WriteString(argName + "=" + decimal.NewFromFloat(v.Field(i).Elem().Float()).String() + "&")
+			case reflect.Bool:
+				argBuffer.WriteString(argName + "=" + strconv.FormatBool(v.Field(i).Elem().Bool()) + "&")
+			case reflect.Struct:
+				sv := reflect.ValueOf(v.Field(i).Interface())
+				ToStringMethod := sv.MethodByName("String")
+				args := make([]reflect.Value, 0)
+				result := ToStringMethod.Call(args)
+				argBuffer.WriteString(argName + "=" + result[0].String() + "&")
+			case reflect.Slice:
+				s := v.Field(i).Interface()
+				d, _ := json.Marshal(s)
+				argBuffer.WriteString(argName + "=" + url.QueryEscape(string(d)) + "&")
+			case reflect.Invalid:
+			default:
+				log.Errorf("req type error %s:%s", argName, v.Field(i).Elem().Kind())
+			}
+		}
+
 	}
-	return strings.TrimRight(argBuffer.String(), "&")
+	return strings.TrimRight(argBuffer.String(), "&"), pathParamsMap
 }
 
 func GateGetRestHostByAPIType(apiType APIType) string {

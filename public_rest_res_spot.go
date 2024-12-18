@@ -11,6 +11,7 @@ type PublicRestSpotCurrenciesResRow struct {
 	Chain            string `json:"chain"`             // string 币对应的链
 }
 type PublicRestSpotCurrenciesRes []PublicRestSpotCurrenciesResRow
+type PublicRestSpotCurrenciesCurrencyRes PublicRestSpotCurrenciesResRow
 
 type PublicRestSpotCurrencyPairCommon struct {
 	ID              string `json:"id"`               // string 交易对名称

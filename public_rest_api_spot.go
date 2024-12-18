@@ -1,7 +1,7 @@
 package mygateapi
 
 // gate PublicRestSpotCurrencies PublicRest接口 GET 查询所有币种信息
-func (client *PublicRestClient) NewPublicRestPublicInstruments() *PublicRestSpotCurrenciesAPI {
+func (client *PublicRestClient) NewPublicRestSpotCurrencies() *PublicRestSpotCurrenciesAPI {
 	return &PublicRestSpotCurrenciesAPI{
 		client: client,
 		req:    &PublicRestSpotCurrenciesReq{},
@@ -10,6 +10,18 @@ func (client *PublicRestClient) NewPublicRestPublicInstruments() *PublicRestSpot
 func (api *PublicRestSpotCurrenciesAPI) Do() (*GateRestRes[PublicRestSpotCurrenciesRes], error) {
 	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PublicRestAPIMap[PublicSpotCurrencies])
 	return gateCallAPI[PublicRestSpotCurrenciesRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
+// gate PublicRestSpotCurrenciesCurrency PublicRest接口 GET 查询单个币种信息
+func (client *PublicRestClient) NewPublicRestSpotCurrenciesCurrency() *PublicRestSpotCurrenciesCurrencyAPI {
+	return &PublicRestSpotCurrenciesCurrencyAPI{
+		client: client,
+		req:    &PublicRestSpotCurrenciesCurrencyReq{},
+	}
+}
+func (api *PublicRestSpotCurrenciesCurrencyAPI) Do() (*GateRestRes[PublicRestSpotCurrenciesCurrencyRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PublicRestAPIMap[PublicSpotCurrenciesCurrency])
+	return gateCallAPI[PublicRestSpotCurrenciesCurrencyRes](api.client.c, url, NIL_REQBODY, GET)
 }
 
 // gate PublicRestSpotCurrencyPairs PublicRest接口 GET 查询支持的所有交易对
