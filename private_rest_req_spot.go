@@ -261,3 +261,346 @@ type PrivateRestSpotOpenOrdersAPI struct {
 	client *PrivateRestClient
 	req    *PrivateRestSpotOpenOrdersReq
 }
+
+type PrivateRestSpotOrdersGetReq struct {
+	CurrencyPair *string `json:"currency_pair"` //string	否	指定交易对查询。如果查询挂单的记录，该字段必选。如果查询已成交的记录，该字段可以不指定。
+	Status       *string `json:"status"`        //string	是	基于状态查询订单列表
+	Page         *int    `json:"page"`          //integer(int32)	否	列表页数
+	Limit        *int    `json:"limit"`         //integer	否	列表返回的最大数量，如果 status 设置为 open ，limit 最大允许 100
+	Account      *string `json:"account"`       //string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+	From         *int64  `json:"from"`          //integer(int64)	否	查询记录的起始时间
+	To           *int64  `json:"to"`            //integer(int64)	否	查询记录的结束时间，不指定则默认为当前时间
+	Side         *string `json:"side"`          //string	否	指定全部买单或全部卖单，不指定则两者都包括
+}
+
+// currency_pair	请求参数	string	否	指定交易对查询。如果查询挂单的记录，该字段必选。如果查询已成交的记录，该字段可以不指定。
+func (api *PrivateRestSpotOrdersGetAPI) CurrencyPair(currencyPair string) *PrivateRestSpotOrdersGetAPI {
+	api.req.CurrencyPair = GetPointer(currencyPair)
+	return api
+}
+
+// status	请求参数	string	是	基于状态查询订单列表
+func (api *PrivateRestSpotOrdersGetAPI) Status(status string) *PrivateRestSpotOrdersGetAPI {
+	api.req.Status = GetPointer(status)
+	return api
+}
+
+// page	请求参数	integer(int32)	否	列表页数
+func (api *PrivateRestSpotOrdersGetAPI) Page(page int) *PrivateRestSpotOrdersGetAPI {
+	api.req.Page = GetPointer(page)
+	return api
+}
+
+// limit	请求参数	integer	否	列表返回的最大数量，如果 status 设置为 open ，limit 最大允许 100
+func (api *PrivateRestSpotOrdersGetAPI) Limit(limit int) *PrivateRestSpotOrdersGetAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// account	请求参数	string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+func (api *PrivateRestSpotOrdersGetAPI) Account(account string) *PrivateRestSpotOrdersGetAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+// from	请求参数	integer(int64)	否	查询记录的起始时间
+func (api *PrivateRestSpotOrdersGetAPI) From(from int64) *PrivateRestSpotOrdersGetAPI {
+	api.req.From = GetPointer(from)
+	return api
+}
+
+// to	请求参数	integer(int64)	否	查询记录的结束时间，不指定则默认为当前时间
+func (api *PrivateRestSpotOrdersGetAPI) To(to int64) *PrivateRestSpotOrdersGetAPI {
+	api.req.To = GetPointer(to)
+	return api
+}
+
+// side	请求参数	string	否	指定全部买单或全部卖单，不指定则两者都包括
+func (api *PrivateRestSpotOrdersGetAPI) Side(side string) *PrivateRestSpotOrdersGetAPI {
+	api.req.Side = GetPointer(side)
+	return api
+}
+
+type PrivateRestSpotOrdersGetAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotOrdersGetReq
+}
+
+type PrivateRestSpotOrdersOrderIdGetReq struct {
+	OrderId      *string `json:"order_id"`      //string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+	CurrencyPair *string `json:"currency_pair"` //string	否	指定交易对查询。如果查询挂单的记录，该字段必选。如果查询已成交的记录，该字段可以不指定
+	Account      *string `json:"account"`       //string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+}
+
+// order_id	请求参数	string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+func (api *PrivateRestSpotOrdersOrderIdGetAPI) OrderId(orderId string) *PrivateRestSpotOrdersOrderIdGetAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+// currency_pair	请求参数	string	否	指定交易对查询。如果查询挂单的记录，该字段必选。如果查询已成交的记录，该字段可以不指定
+func (api *PrivateRestSpotOrdersOrderIdGetAPI) CurrencyPair(currencyPair string) *PrivateRestSpotOrdersOrderIdGetAPI {
+	api.req.CurrencyPair = GetPointer(currencyPair)
+	return api
+}
+
+// account	请求参数	string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+func (api *PrivateRestSpotOrdersOrderIdGetAPI) Account(account string) *PrivateRestSpotOrdersOrderIdGetAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+type PrivateRestSpotOrdersOrderIdGetAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotOrdersOrderIdGetReq
+}
+
+type PrivateRestSpotOrdersOrderIdPatchReq struct {
+	OrderId      *string `json:"order_id"`      //string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+	CurrencyPair *string `json:"currency_pair"` //string	否	交易对
+	Account      *string `json:"account"`       //string	否	指定查询账户。
+	Amount       *string `json:"amount"`        //string	否	交易数量，amount和price必须指定其中一个
+	Price        *string `json:"price"`         //string	否	交易价，amount和price必须指定其中一个
+	AmendText    *string `json:"amend_text"`    //string	否	用户可以备注这次修改的信息。
+	ActionMode   *string `json:"action_mode"`   //string	否	处理模式: 下单时根据action_mode返回不同的字段, 该字段只在请求时有效，响应结果中不包含该字段 ACK: 异步模式，只返回订单关键字段 RESULT: 无清算信息 FULL: 完整模式（默认）
+}
+
+// order_id	请求参数	string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) OrderId(orderId string) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+// currency_pair	请求参数	string	否	交易对
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) CurrencyPair(currencyPair string) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.CurrencyPair = GetPointer(currencyPair)
+	return api
+}
+
+// account	请求参数	string	否	指定查询账户。
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) Account(account string) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+// amount	请求参数	string	否	交易数量，amount和price必须指定其中一个
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) Amount(amount decimal.Decimal) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.Amount = GetPointer(amount.String())
+	return api
+}
+
+// price	请求参数	string	否	交易价，amount和price必须指定其中一个
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) Price(price decimal.Decimal) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.Price = GetPointer(price.String())
+	return api
+}
+
+// amend_text	请求参数	string	否	用户可以备注这次修改的信息。
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) AmendText(amendText string) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.AmendText = GetPointer(amendText)
+	return api
+}
+
+// action_mode	请求参数	string	否	处理模式: 下单时根据action_mode返回不同的字段, 该字段只在请求时有效，响应结果中不包含该字段 ACK: 异步模式，只返回订单关键字段 RESULT: 无清算信息 FULL: 完整模式（默认）
+func (api *PrivateRestSpotOrdersOrderIdPatchAPI) ActionMode(actionMode string) *PrivateRestSpotOrdersOrderIdPatchAPI {
+	api.req.ActionMode = GetPointer(actionMode)
+	return api
+}
+
+type PrivateRestSpotOrdersOrderIdPatchAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotOrdersOrderIdPatchReq
+}
+
+type PrivateRestSpotOrdersOrderIdDeleteReq struct {
+	OrderId      *string `json:"order_id"`      //string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+	CurrencyPair *string `json:"currency_pair"` //string	是	交易对
+	Account      *string `json:"account"`       //string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+	ActionMode   *string `json:"action_mode"`   //string	否	处理模式
+}
+
+// order_id	请求参数	string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+func (api *PrivateRestSpotOrdersOrderIdDeleteAPI) OrderId(orderId string) *PrivateRestSpotOrdersOrderIdDeleteAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+// currency_pair	请求参数	string	是	交易对
+func (api *PrivateRestSpotOrdersOrderIdDeleteAPI) CurrencyPair(currencyPair string) *PrivateRestSpotOrdersOrderIdDeleteAPI {
+	api.req.CurrencyPair = GetPointer(currencyPair)
+	return api
+}
+
+// account	请求参数	string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+func (api *PrivateRestSpotOrdersOrderIdDeleteAPI) Account(account string) *PrivateRestSpotOrdersOrderIdDeleteAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+// action_mode	请求参数	string	否	处理模式
+func (api *PrivateRestSpotOrdersOrderIdDeleteAPI) ActionMode(actionMode string) *PrivateRestSpotOrdersOrderIdDeleteAPI {
+	api.req.ActionMode = GetPointer(actionMode)
+	return api
+}
+
+type PrivateRestSpotOrdersOrderIdDeleteAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotOrdersOrderIdDeleteReq
+}
+
+type PrivateRestSpotMyTradesReq struct {
+	CurrencyPair *string `json:"currency_pair"` //string	否	指定交易对查询
+	Limit        *int    `json:"limit"`         //integer	否	列表返回的最大数量。默认为100，最小1，最大1000。
+	Page         *int    `json:"page"`          //integer(int32)	否	列表页数
+	OrderId      *string `json:"order_id"`      //string	否	指定查询订单 ID 的成交记录。指定该参数时 currency_pair 要求必填
+	Account      *string `json:"account"`       //string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+	From         *int64  `json:"from"`          //integer(int64)	否	查询记录的起始时间
+	To           *int64  `json:"to"`            //integer(int64)	否	查询记录的结束时间，不指定则默认为当前时间
+}
+
+// currency_pair	请求参数	string	否	指定交易对查询
+func (api *PrivateRestSpotMyTradesAPI) CurrencyPair(currencyPair string) *PrivateRestSpotMyTradesAPI {
+	api.req.CurrencyPair = GetPointer(currencyPair)
+	return api
+}
+
+// limit	请求参数	integer	否	列表返回的最大数量。默认为100，最小1，最大1000。
+func (api *PrivateRestSpotMyTradesAPI) Limit(limit int) *PrivateRestSpotMyTradesAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// page	请求参数	integer(int32)	否	列表页数
+func (api *PrivateRestSpotMyTradesAPI) Page(page int) *PrivateRestSpotMyTradesAPI {
+	api.req.Page = GetPointer(page)
+	return api
+}
+
+// order_id	请求参数	string	否	指定查询订单 ID 的成交记录。指定该参数时 currency_pair 要求必填
+func (api *PrivateRestSpotMyTradesAPI) OrderId(orderId string) *PrivateRestSpotMyTradesAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+// account	请求参数	string	否	指定查询账户。不指定默认现货，保证金和逐仓杠杆账户。指定 cross_margin 则查询全仓杠杆账户。
+func (api *PrivateRestSpotMyTradesAPI) Account(account string) *PrivateRestSpotMyTradesAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+// from	请求参数	integer(int64)	否	查询记录的起始时间
+func (api *PrivateRestSpotMyTradesAPI) From(from int64) *PrivateRestSpotMyTradesAPI {
+	api.req.From = GetPointer(from)
+	return api
+}
+
+// to	请求参数	integer(int64)	否	查询记录的结束时间，不指定则默认为当前时间
+func (api *PrivateRestSpotMyTradesAPI) To(to int64) *PrivateRestSpotMyTradesAPI {
+	api.req.To = GetPointer(to)
+	return api
+}
+
+type PrivateRestSpotMyTradesAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotMyTradesReq
+}
+
+type PrivateRestSpotPriceOrdersPostReq struct {
+	Trigger *struct {
+		Price      *string `json:"price"`      //string	是	触发价格
+		Rule       *string `json:"rule"`       //string	是	价格条件类型 =: 表示市场价格大于等于 price时触发 <=: 表示市场价格小于等于 price时触发
+		Expiration *int    `json:"expiration"` //integer	是	最长等待触发时间，超时则取消该订单，单位是秒 s
+	} `json:"trigger"` //object	是
+	Put *struct {
+		Type        *string `json:"type"`          //string	否	订单类型，默认为限价单
+		Side        *string `json:"side"`          //string	是	买卖方向
+		Price       *string `json:"price"`         //string	是	挂单价格
+		Amount      *string `json:"amount"`        //string	是	交易数量
+		Account     *string `json:"account"`       //string	是	交易账户类型，统一账户只能设置 cross_margin
+		TimeInForce *string `json:"time_in_force"` //string	否	time_in_force
+		Text        *string `json:"text"`          //string	否	订单的来源，包括：
+		Market      *string `json:"market"`        //string	是	市场
+	} `json:"put"` //object	是
+	Market *string `json:"market"` //string	是	市场
+}
+
+// trigger	请求参数	object	是
+// » price	请求参数	string	是	触发价格
+func (api *PrivateRestSpotPriceOrdersPostAPI) TriggerPrice(price string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Trigger.Price = GetPointer(price)
+	return api
+}
+
+// trigger	请求参数	object	是
+// » rule	请求参数	string	是	价格条件类型 =: 表示市场价格大于等于 price时触发 <=: 表示市场价格小于等于 price时触发
+func (api *PrivateRestSpotPriceOrdersPostAPI) TriggerRule(rule string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Trigger.Rule = GetPointer(rule)
+	return api
+}
+
+// trigger	请求参数	object 	是
+// » expiration	请求参数	integer	是	最长等待触发时间，超时则取消该订单，单位是秒 s
+func (api *PrivateRestSpotPriceOrdersPostAPI) TriggerExpiration(expiration int) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Trigger.Expiration = GetPointer(expiration)
+	return api
+}
+
+// put	请求参数	object	是
+// » type	请求参数	string	否	订单类型，默认为限价单
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutType(t string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.Type = GetPointer(t)
+	return api
+}
+
+// put	请求参数	object	是
+// » side	请求参数	string	是	买卖方向
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutSide(side string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.Side = GetPointer(side)
+	return api
+}
+
+// put	请求参数	object	是
+// » price	请求参数	string	是	挂单价格
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutPrice(price string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.Price = GetPointer(price)
+	return api
+}
+
+// put	请求参数	object	是
+// » amount	请求参数	string	是	交易数量
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutAmount(amount string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.Amount = GetPointer(amount)
+	return api
+}
+
+// put	请求参数	object	是
+// » account	请求参数	string	是	交易账户类型，统一账户只能设置 cross_margin
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutAccount(account string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.Account = GetPointer(account)
+	return api
+}
+
+// put	请求参数	object	是
+// » time_in_force	请求参数	string	否	time_in_force
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutTimeInForce(timeInForce string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.TimeInForce = GetPointer(timeInForce)
+	return api
+}
+
+// put	请求参数	object	是
+// » text	请求参数	string	否	订单的来源，包括：
+func (api *PrivateRestSpotPriceOrdersPostAPI) PutText(text string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Put.Text = GetPointer(text)
+	return api
+}
+
+// » market	请求参数	string	是	市场
+func (api *PrivateRestSpotPriceOrdersPostAPI) Market(market string) *PrivateRestSpotPriceOrdersPostAPI {
+	api.req.Market = GetPointer(market)
+	return api
+}
+
+type PrivateRestSpotPriceOrdersPostAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotPriceOrdersPostReq
+}

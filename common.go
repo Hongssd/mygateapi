@@ -32,6 +32,7 @@ const (
 	POST   = "POST"
 	DELETE = "DELETE"
 	PUT    = "PUT"
+	PATCH  = "PATCH"
 )
 
 var NIL_REQBODY = []byte{}

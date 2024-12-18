@@ -31,7 +31,7 @@ type PublicRestSpotCurrencyPairCommon struct {
 
 type PublicRestSpotCurrencyPairsAllRes []PublicRestSpotCurrencyPairCommon
 
-type PublicRestSpotCurrencyPairsSingleRes PublicRestSpotCurrencyPairCommon
+type PublicRestSpotCurrencyPairsCurrencyPairRes PublicRestSpotCurrencyPairCommon
 
 type PublicRestSpotTickerResRow struct {
 	CurrencyPair     string `json:"currency_pair"`     // string 交易对
@@ -121,3 +121,7 @@ type PublicRestSpotCandlesticksResRow struct {
 }
 
 type PublicRestSpotCandlesticksRes []PublicRestSpotCandlesticksResRow
+
+type PublicRestSpotTimeRes struct {
+	ServerTime int64 `json:"server_time"` // 服务器时间
+}
