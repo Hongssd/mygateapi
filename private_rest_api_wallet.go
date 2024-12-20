@@ -25,3 +25,16 @@ func (api *PrivateRestWalletFeeAPI) Do() (*GateRestRes[PrivateRestWalletFeeRes],
 	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestWalletFee])
 	return gateCallApiWithSecret[PrivateRestWalletFeeRes](api.client.c, url, NIL_REQBODY, GET)
 }
+
+// gate PrivateRestWalletTransfers PrivateRest接口 GET 查询个人转账记录
+func (client *PrivateRestClient) NewPrivateRestWalletTransfers() *PrivateRestWalletTransfersAPI {
+	return &PrivateRestWalletTransfersAPI{
+		client: client,
+		req:    &PrivateRestWalletTransfersReq{},
+	}
+}
+
+func (api *PrivateRestWalletTransfersAPI) Do() (*GateRestRes[PrivateRestWalletTransfersRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestWalletTransfers])
+	return gateCallApiWithSecret[PrivateRestWalletTransfersRes](api.client.c, url, NIL_REQBODY, GET)
+}

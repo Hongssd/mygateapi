@@ -58,3 +58,7 @@ type PrivateRestSpotMyTradesResRow struct {
 }
 
 type PrivateRestSpotMyTradesRes []PrivateRestSpotMyTradesResRow
+
+type PrivateRestWalletTransfersRes struct {
+	TxId string `json:"tx_id"` //操作单号
+}

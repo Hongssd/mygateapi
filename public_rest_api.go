@@ -17,6 +17,13 @@ const (
 
 	// Margin公共接口
 	PublicRestMarginCrossCurrencies //全仓杠杆支持的币种列表
+
+	// Futures公共接口
+	PublicRestFuturesSettleContracts         //查询所有的合约信息
+	PublicRestFuturesSettleContractsContract //查询单个合约信息
+	PublicRestFuturesSettleOrderBook         //查询合约市场深度信息
+	PublicRestFuturesSettleTrades            //合约市场成交记录
+	PublicRestFuturesSettleCandlesticks      //合约市场K线图
 )
 
 var PublicRestAPIMap = map[PublicRestAPI]string{
@@ -33,4 +40,11 @@ var PublicRestAPIMap = map[PublicRestAPI]string{
 
 	// Margin公共接口
 	PublicRestMarginCrossCurrencies: "/api/v4/margin/cross/currencies", //GET 全仓杠杆支持的币种列表
+
+	// Futures公共接口
+	PublicRestFuturesSettleContracts:         "/api/v4/futures/{settle}/contracts",            //GET 查询所有的合约信息
+	PublicRestFuturesSettleContractsContract: "/api/v4/futures/{settle}/contracts/{contract}", //GET 查询单个合约信息
+	PublicRestFuturesSettleOrderBook:         "/api/v4/futures/{settle}/order_book",           //GET 查询合约市场深度信息
+	PublicRestFuturesSettleTrades:            "/api/v4/futures/{settle}/trades",               //GET 合约市场成交记录
+	PublicRestFuturesSettleCandlesticks:      "/api/v4/futures/{settle}/candlesticks",         //GET 合约市场K线图
 }

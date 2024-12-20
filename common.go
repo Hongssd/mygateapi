@@ -186,7 +186,7 @@ func gateCallApiWithSecret[T any](client *Client, url url.URL, reqBody []byte, m
 func gateHandlerRequestAPIWithPathQueryParam[T any](apiType APIType, request *T, name string) url.URL {
 	// 正则匹配name字符串中包含{xxx}的参数，其中xxx为路径参数名
 	// 定义正则表达式，匹配 `{xxx}` 的部分
-	re := regexp.MustCompile(`\{([a-zA-Z0-9_]+)\}`)
+	re := regexp.MustCompile(`\{([a-zA-Z0-9_]+)}`)
 	// 查找所有匹配的子字符串
 	matches := re.FindAllStringSubmatch(name, -1)
 	// 提取路径参数名
