@@ -24,6 +24,14 @@ const (
 	PublicRestFuturesSettleOrderBook         //查询合约市场深度信息
 	PublicRestFuturesSettleTrades            //合约市场成交记录
 	PublicRestFuturesSettleCandlesticks      //合约市场K线图
+
+	// Delivery公共接口
+	PublicRestDeliverySettleContracts         //查询所有的合约信息
+	PublicRestDeliverySettleContractsContract //查询单个合约信息
+	PublicRestDeliverySettleOrderBook         //查询合约市场深度信息
+	PublicRestDeliverySettleTrades            //合约市场成交记录
+	PublicRestDeliverySettleCandlesticks      //合约市场K线图
+	PublicRestDeliverySettleTickers           //获取所有合约交易中行情统计
 )
 
 var PublicRestAPIMap = map[PublicRestAPI]string{
@@ -47,4 +55,12 @@ var PublicRestAPIMap = map[PublicRestAPI]string{
 	PublicRestFuturesSettleOrderBook:         "/api/v4/futures/{settle}/order_book",           //GET 查询合约市场深度信息
 	PublicRestFuturesSettleTrades:            "/api/v4/futures/{settle}/trades",               //GET 合约市场成交记录
 	PublicRestFuturesSettleCandlesticks:      "/api/v4/futures/{settle}/candlesticks",         //GET 合约市场K线图
+
+	// Delivery公共接口
+	PublicRestDeliverySettleContracts:         "/api/v4/delivery/{settle}/contracts",            //GET 查询所有的合约信息
+	PublicRestDeliverySettleContractsContract: "/api/v4/delivery/{settle}/contracts/{contract}", //GET 查询单个合约信息
+	PublicRestDeliverySettleOrderBook:         "/api/v4/delivery/{settle}/order_book",           //GET 查询合约市场深度信息
+	PublicRestDeliverySettleTrades:            "/api/v4/delivery/{settle}/trades",               //GET 合约市场成交记录
+	PublicRestDeliverySettleCandlesticks:      "/api/v4/delivery/{settle}/candlesticks",         //GET 合约市场K线图
+	PublicRestDeliverySettleTickers:           "/api/v4/delivery/{settle}/tickers",              //GET 获取所有合约交易中行情统计
 }

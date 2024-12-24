@@ -356,19 +356,7 @@ type PrivateRestFuturesSettleDualCompPositionsContractRiskLimitAPI struct {
 	client *PrivateRestClient
 	req    *PrivateRestFuturesSettleDualCompPositionsContractRiskLimitReq
 }
-type PrivateRestFuturesSettleOrdersPostReq struct {
-	Settle     *string `json:"settle"`      // settle	URL	string	是	结算货币
-	Contract   *string `json:"contract"`    // contract	body	string	是	合约标��
-	Size       *int64  `json:"size"`        // size	body	integer(int64)	是	必选。交易数量，正数为买入，负数为卖出。平仓委托则设置为0。
-	Iceberg    *int64  `json:"iceberg"`     // iceberg	body	integer(int64)	否	冰山委托显示数量。0为完全不隐藏。注意，隐藏部分成交按照taker收取手续费。
-	Price      *string `json:"price"`       // price	body	string	否	委托价。价格为0并且tif为ioc，代表市价委托。
-	Close      *bool   `json:"close"`       // close	body	boolean	否	设置为 true 的时候执行平仓操作，并且size应设置为0
-	ReduceOnly *bool   `json:"reduce_only"` // reduce_only	body	boolean	否	设置为 true 的时候，为只减仓委托
-	Tif        *string `json:"tif"`         // tif	body	string	否	Time in force 策略，市价单当前只支持 ioc 模式
-	Text       *string `json:"text"`        // text	body	string	否	订单自定义信息，用户可以用该字段设置自定义 ID，用户自定义字段必须满足以下条件：
-	AutoSize   *string `json:"auto_size"`   // auto_size	body	string	否	双仓模式下用于设置平仓的方向，close_long 平多头， close_short 平空头，需要同时设置 size 为 0
-	StpAct     *string `json:"stp_act"`     // stp_act	body	string	否	Self-Trading Prevention Action,用户可以用该字段设置自定义限制自成交策略。
-}
+type PrivateRestFuturesSettleOrdersPostReq GateFuturesOrderReqCommon
 
 // settle	URL	string	是	结算货币
 func (api *PrivateRestFuturesSettleOrdersPostAPI) Settle(settle string) *PrivateRestFuturesSettleOrdersPostAPI {

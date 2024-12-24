@@ -54,6 +54,31 @@ const (
 	PrivateRestFuturesSettleOrdersOrderIdDelete //撤销单个订单
 	PrivateRestFuturesSettleOrdersOrderIdPut    //修改单个订单
 	PrivateRestFuturesSettleMyTrades            //查询个人成交记录
+
+	// Delivery 账户相关
+	PrivateRestDeliverySettleAccounts                   //获取合约账户
+	PrivateRestDeliverySettleAccountBook                //查询合约账户变动历史
+	PrivateRestDeliverySettlePositions                  //获取用户仓位列表
+	PrivateRestDeliverySettlePositionsContract          //获取单个仓位信息
+	PrivateRestDeliverySettlePositionsContractMargin    //更新仓位保证金
+	PrivateRestDeliverySettlePositionsContractLeverage  //更新仓位杠杆
+	PrivateRestDeliverySettlePositionsContractRiskLimit //更新仓位风险限额
+
+	// Delivery 订单相关
+	PrivateRestDeliverySettleOrdersPost               //合约交易下单
+	PrivateRestDeliverySettleOrdersGet                //查询合约订单列表
+	PrivateRestDeliverySettleOrdersDelete             //批量取消状态为open的订单
+	PrivateRestDeliverySettleOrdersOrderIdGet         //查询单个订单详情
+	PrivateRestDeliverySettleOrdersOrderIdDelete      //撤销单个订单
+	PrivateRestDeliverySettleMyTrades                 //查询个人成交记录
+	PrivateRestDeliverySettlePositionClose            //查询平仓历史
+	PrivateRestDeliverySettleLiquidates               //查询强平历史
+	PrivateRestDeliverySettleSettlements              //查询结算记录
+	PrivateRestDeliverySettlePriceOrdersPost          //创建价格触发订单
+	PrivateRestDeliverySettlePriceOrdersGet           //查询自动订单列表
+	PrivateRestDeliverySettlePriceOrdersDelete        //批量取消自动订单
+	PrivateRestDeliverySettlePriceOrdersOrderIdGet    //查询单个自动订单详情
+	PrivateRestDeliverySettlePriceOrdersOrderIdDelete //撤销单个自动订单
 )
 
 var PrivateRestAPIMap = map[PrivateRestAPI]string{
@@ -107,4 +132,29 @@ var PrivateRestAPIMap = map[PrivateRestAPI]string{
 	PrivateRestFuturesSettleOrdersOrderIdDelete: "/api/v4/futures/{settle}/orders/{order_id}", //DELETE 撤销单个订单
 	PrivateRestFuturesSettleOrdersOrderIdPut:    "/api/v4/futures/{settle}/orders/{order_id}", //PUT 修改单个订单
 	PrivateRestFuturesSettleMyTrades:            "/api/v4/futures/{settle}/my_trades",         //GET 查询个人成交记录
+
+	// Delivery 账户相关
+	PrivateRestDeliverySettleAccounts:                   "/api/v4/delivery/{settle}/accounts",                        //GET 获取合约账户
+	PrivateRestDeliverySettleAccountBook:                "/api/v4/delivery/{settle}/account_book",                    //GET 查询合约账户变动历史
+	PrivateRestDeliverySettlePositions:                  "/api/v4/delivery/{settle}/positions",                       //GET 获取用户仓位列表
+	PrivateRestDeliverySettlePositionsContract:          "/api/v4/delivery/{settle}/positions/{contract}",            //GET 获取单个仓位信息
+	PrivateRestDeliverySettlePositionsContractMargin:    "/api/v4/delivery/{settle}/positions/{contract}/margin",     //POST 更新仓位保证金
+	PrivateRestDeliverySettlePositionsContractLeverage:  "/api/v4/delivery/{settle}/positions/{contract}/leverage",   //POST 更新仓位杠杆
+	PrivateRestDeliverySettlePositionsContractRiskLimit: "/api/v4/delivery/{settle}/positions/{contract}/risk_limit", //POST 更新仓位风险限额
+
+	// Delivery 订单相关
+	PrivateRestDeliverySettleOrdersPost:               "/api/v4/delivery/{settle}/orders",                  //POST 合约交易下单
+	PrivateRestDeliverySettleOrdersGet:                "/api/v4/delivery/{settle}/orders",                  //GET 查询合约订单列表
+	PrivateRestDeliverySettleOrdersDelete:             "/api/v4/delivery/{settle}/orders",                  //DELETE 批量取消状态为open的订单
+	PrivateRestDeliverySettleOrdersOrderIdGet:         "/api/v4/delivery/{settle}/orders/{order_id}",       //GET 查询单个订单详情
+	PrivateRestDeliverySettleOrdersOrderIdDelete:      "/api/v4/delivery/{settle}/orders/{order_id}",       //DELETE 撤销单个订单
+	PrivateRestDeliverySettleMyTrades:                 "/api/v4/delivery/{settle}/my_trades",               //GET 查询个人成交记录
+	PrivateRestDeliverySettlePositionClose:            "/api/v4/delivery/{settle}/position_close",          //GET 查询平仓历史
+	PrivateRestDeliverySettleLiquidates:               "/api/v4/delivery/{settle}/liquidates",              //GET 查询强平历史
+	PrivateRestDeliverySettleSettlements:              "/api/v4/delivery/{settle}/settlements",             //GET 查询结算记录
+	PrivateRestDeliverySettlePriceOrdersPost:          "/api/v4/delivery/{settle}/price_orders",            //POST 创建价格触发订单
+	PrivateRestDeliverySettlePriceOrdersGet:           "/api/v4/delivery/{settle}/price_orders",            //GET 查询自动订单列表
+	PrivateRestDeliverySettlePriceOrdersDelete:        "/api/v4/delivery/{settle}/price_orders",            //DELETE 批量取消自动订单
+	PrivateRestDeliverySettlePriceOrdersOrderIdGet:    "/api/v4/delivery/{settle}/price_orders/{order_id}", //GET 查询单个自动订单详情
+	PrivateRestDeliverySettlePriceOrdersOrderIdDelete: "/api/v4/delivery/{settle}/price_orders/{order_id}", //DELETE 撤销单个自动订单
 }
