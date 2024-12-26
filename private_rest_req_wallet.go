@@ -38,12 +38,12 @@ type PrivateRestWalletFeeAPI struct {
 }
 
 type PrivateRestWalletTransfersReq struct {
-	Currency     *string `json:"currency"`      //转账货币名称。关联合约账户时，currency 可以设置的值为POINT(即点卡) 和支持的结算货币(如 BTC, USDT)
-	From         *string `json:"from"`          //转出账户
-	To           *string `json:"to"`            //转入账户
-	Amount       *string `json:"amount"`        //转账额度
-	CurrencyPair *string `json:"currency_pair"` //杠杆交易对。转入或转出杠杆账户时必填
-	Settle       *string `json:"settle"`        //合约结算币种。 转入转出合约账户时必填
+	Currency     *string `json:"currency"`                //转账货币名称。关联合约账户时，currency 可以设置的值为POINT(即点卡) 和支持的结算货币(如 BTC, USDT)
+	From         *string `json:"from"`                    //转出账户
+	To           *string `json:"to"`                      //转入账户
+	Amount       *string `json:"amount"`                  //转账额度
+	CurrencyPair *string `json:"currency_pair,omitempty"` //杠杆交易对。转入或转出杠杆账户时必填
+	Settle       *string `json:"settle,omitempty"`        //合约结算币种。 转入转出合约账户时必填
 }
 
 // currency	请求参数	string	否	转账货币名称。关联合约账户时，currency 可以设置的值为POINT(即点卡) 和支持的结算货币(如 BTC, USDT)
