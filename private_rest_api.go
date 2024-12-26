@@ -79,6 +79,16 @@ const (
 	PrivateRestDeliverySettlePriceOrdersDelete        //批量取消自动订单
 	PrivateRestDeliverySettlePriceOrdersOrderIdGet    //查询单个自动订单详情
 	PrivateRestDeliverySettlePriceOrdersOrderIdDelete //撤销单个自动订单
+
+	// Unified 账户相关
+	PrivateRestUnifiedAccounts                        //获取统一账户信息
+	PrivateRestUnifiedTransferable                    //获取统一账户最多可转出
+	PrivateRestUnifiedRiskUnits                       //获取用户风险单元详情（仅在组合保证金模式有效）
+	PrivateRestUnifiedUnifiedModePut                  //设置统一账户模式
+	PrivateRestUnifiedUnifiedModeGet                  //查询统一账户模式
+	PrivateRestUnifiedLeverageUserCurrencyConfig      // 用户最大、最小可设置币种杠杆倍数
+	PrivateRestUnifiedLeverageUserCurrencySettingGet  // 获取用户币种杠杆倍数，currency不传则查询全部币种
+	PrivateRestUnifiedLeverageUserCurrencySettingPost // 设置币种杠杆倍数
 )
 
 var PrivateRestAPIMap = map[PrivateRestAPI]string{
@@ -157,4 +167,14 @@ var PrivateRestAPIMap = map[PrivateRestAPI]string{
 	PrivateRestDeliverySettlePriceOrdersDelete:        "/api/v4/delivery/{settle}/price_orders",            //DELETE 批量取消自动订单
 	PrivateRestDeliverySettlePriceOrdersOrderIdGet:    "/api/v4/delivery/{settle}/price_orders/{order_id}", //GET 查询单个自动订单详情
 	PrivateRestDeliverySettlePriceOrdersOrderIdDelete: "/api/v4/delivery/{settle}/price_orders/{order_id}", //DELETE 撤销单个自动订单
+
+	// Unified 账户相关
+	PrivateRestUnifiedAccounts:                        "/api/v4/unified/accounts",                       //GET 获取统一账户信息
+	PrivateRestUnifiedTransferable:                    "/api/v4/unified/transferable",                   //GET 获取统一账户最多可转出
+	PrivateRestUnifiedRiskUnits:                       "/api/v4/unified/risk_units",                     //GET 获取用户风险单元详情（仅在组合保证金模式有效）
+	PrivateRestUnifiedUnifiedModePut:                  "/api/v4/unified/unified_mode",                   //PUT 设置统一账户模式
+	PrivateRestUnifiedUnifiedModeGet:                  "/api/v4/unified/unified_mode",                   //GET 查询统一账户模式
+	PrivateRestUnifiedLeverageUserCurrencyConfig:      "/api/v4/unified/leverage/user_currency_config",  //GET 用户最大、最小可设置币种杠杆倍数
+	PrivateRestUnifiedLeverageUserCurrencySettingGet:  "/api/v4/unified/leverage/user_currency_setting", //GET 获取用户币种杠杆倍数，currency不传则查询全部币种
+	PrivateRestUnifiedLeverageUserCurrencySettingPost: "/api/v4/unified/leverage/user_currency_setting", //POST 设置币种杠杆倍数
 }
