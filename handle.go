@@ -28,6 +28,7 @@ func handlerCommonRest[T any](data []byte, respHeaderMap map[string]string, stat
 	log.Debug(string(data))
 
 	res.StatusCode = statusCode
+	//log.Debug(res.StatusCode)
 	//捕获网关出入站时间信息 结果为微秒时间戳
 	if inTimeStr, ok := respHeaderMap["X-In-Time"]; ok {
 		res.InTime = inTimeStr
@@ -52,6 +53,7 @@ func handlerCommonRest[T any](data []byte, respHeaderMap map[string]string, stat
 			log.Error("rest错误信息获取失败", err)
 			return res, err
 		}
+		res.GateErrorRes = errRes
 	}
 	return res, res.handlerError()
 }

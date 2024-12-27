@@ -68,7 +68,7 @@ type MyGate struct {
 const (
 	GATE_API_HTTP      = "api.gateio.ws"
 	TEST_GATE_API_HTTP = "fx-api-testnet.gateio.ws"
-	IS_GZIP            = true
+	IS_GZIP            = false
 )
 
 type NetType int
@@ -146,7 +146,6 @@ func gateCallAPI[T any](client *Client, url url.URL, reqBody []byte, method stri
 
 // 通用鉴权接口调用
 func gateCallApiWithSecret[T any](client *Client, url url.URL, reqBody []byte, method string) (*GateRestRes[T], error) {
-
 	timestamp := time.Now().Unix() //秒级时间戳
 	requestPath := url.Path
 	query := url.RawQuery
@@ -200,7 +199,7 @@ func gateHandlerRequestAPIWithPathQueryParam[T any](apiType APIType, request *T,
 
 	//将指定参数回填
 	// 参数值映射
-	query, paramsMap := gateHandlerReq(request, params...)
+	query, paramsMap := gateHandlerReq(request, true, params...)
 
 	result := name
 	if len(paramsMap) != 0 {
@@ -229,18 +228,58 @@ func gateHandlerRequestAPIWithPathQueryParam[T any](apiType APIType, request *T,
 }
 
 // URL标准封装 不带路径参数
-func gateHandlerRequestAPIWithoutPathQueryParam(apiType APIType, name string) url.URL {
+func gateHandlerRequestAPIWithoutPathQueryParam[T any](apiType APIType, request *T, name string) url.URL {
+	// 正则匹配name字符串中包含{xxx}的参数，其中xxx为路径参数名
+	// 定义正则表达式，匹配 `{xxx}` 的部分
+	re := regexp.MustCompile(`\{([a-zA-Z0-9_]+)}`)
+	// 查找所有匹配的子字符串
+	matches := re.FindAllStringSubmatch(name, -1)
+	// 提取路径参数名
+	var params []string
+	for _, match := range matches {
+		if len(match) > 1 {
+			params = append(params, match[1])
+		}
+	}
+	//fmt.Println("路径参数:", params)
+
+	//将指定参数回填
+	// 参数值映射
+	query, paramsMap := gateHandlerReq(request, false, params...)
+
+	result := name
+	log.Debug("paramsMap:", paramsMap)
+	if len(paramsMap) != 0 {
+		// 替换占位符
+		result = re.ReplaceAllStringFunc(name, func(m string) string {
+			// 提取参数名
+			key := re.FindStringSubmatch(m)[1]
+			log.Debug("key:", key)
+			// 替换为参数值
+			if value, exists := paramsMap[key]; exists {
+				return value
+			}
+			// 如果参数未提供，保留原占位符
+			return m
+		})
+	}
+
+	//fmt.Println("填充后的路径:", result)
+
 	// query := gateHandlerReq(request)
 	u := url.URL{
 		Scheme:   "https",
 		Host:     GateGetRestHostByAPIType(apiType),
-		Path:     name,
-		RawQuery: "",
+		Path:     result,
+		RawQuery: query,
 	}
+
+	log.Debug(u.String())
+
 	return u
 }
 
-func gateHandlerReq[T any](req *T, pathParams ...string) (string, map[string]string) {
+func gateHandlerReq[T any](req *T, isPathQuery bool, pathParams ...string) (string, map[string]string) {
 	var argBuffer bytes.Buffer
 	pathParamsMap := map[string]string{}
 
@@ -254,6 +293,7 @@ func gateHandlerReq[T any](req *T, pathParams ...string) (string, map[string]str
 	count := v.NumField()
 	for i := 0; i < count; i++ {
 		argName := t.Field(i).Tag.Get("json")
+		argName = strings.ReplaceAll(argName, ",omitempty", "")
 		isPathParam := false
 		for _, pathParam := range pathParams {
 			if argName == pathParam {
@@ -312,6 +352,11 @@ func gateHandlerReq[T any](req *T, pathParams ...string) (string, map[string]str
 		}
 
 	}
+
+	if !isPathQuery {
+		return "", pathParamsMap
+	}
+
 	return strings.TrimRight(argBuffer.String(), "&"), pathParamsMap
 }
 

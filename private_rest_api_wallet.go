@@ -35,7 +35,7 @@ func (client *PrivateRestClient) NewPrivateRestWalletTransfers() *PrivateRestWal
 }
 
 func (api *PrivateRestWalletTransfersAPI) Do() (*GateRestRes[PrivateRestWalletTransfersRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, PrivateRestAPIMap[PrivateRestWalletTransfers])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestWalletTransfers])
 	log.Info(url)
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {

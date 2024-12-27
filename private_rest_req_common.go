@@ -13,3 +13,22 @@ type GateFuturesOrderReqCommon struct {
 	AutoSize   *string `json:"auto_size,omitempty"`   //双仓模式下用于设置平仓的方向，close_long 平多头， close_short 平空头，需要同时设置 size 为 0
 	StpAct     *string `json:"stp_act,omitempty"`     //Self-Trading Prevention Action,用户可以用该字段设置自定义限制自成交策略。
 }
+
+func removeSettleFromReqBody(req interface{}) ([]byte, error) {
+	// remove settle from body
+	bodyMap := map[string]interface{}{}
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(reqBody, &bodyMap)
+	if err != nil {
+		return nil, err
+	}
+	delete(bodyMap, "settle")
+	reqBody, err = json.Marshal(bodyMap)
+	if err != nil {
+		return nil, err
+	}
+	return reqBody, nil
+}

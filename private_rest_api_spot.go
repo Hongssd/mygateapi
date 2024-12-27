@@ -20,7 +20,7 @@ func (client *PrivateRestClient) NewPrivateRestSpotOrdersPost() *PrivateRestSpot
 	}
 }
 func (api *PrivateRestSpotOrdersPostAPI) Do() (*GateRestRes[PrivateRestSpotOrdersPostRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, PrivateRestAPIMap[PrivateRestSpotOrdersPost])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestSpotOrdersPost])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (client *PrivateRestClient) NewPrivateRestSpotPriceOrdersPost() *PrivateRes
 }
 
 func (api *PrivateRestSpotPriceOrdersPostAPI) Do() (*GateRestRes[PrivateRestSpotPriceOrdersPostRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, PrivateRestAPIMap[PrivateRestSpotPriceOrdersPost])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestSpotPriceOrdersPost])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err

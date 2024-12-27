@@ -91,19 +91,19 @@ func (api *PrivateRestSpotAccountsAPI) Currency(currency string) *PrivateRestSpo
 // » stp_act	cb
 // » stp_act	-
 type PrivateRestSpotOrdersPostReq struct {
-	Text         *string `json:"text,omitempty"`          //string	否	订单自定义信息，用户可以用该字段设置自定义 ID，用户自定义字段必须满足以下条件：必须以 t- 开头；不计算 t- ，长度不能超过 28 字节；输入内容只能包含数字、字母、下划线(_)、中划线(-) 或者点(.)；除用户自定义信息以外，以下为内部保留字段，标识订单来源: 101 代表 android 下单 102 代表 IOS 下单 103 代表 IPAD 下单 104 代表 webapp 下单 3 代表 web 下单 2 代表 apiv2 下单 apiv4 代表 apiv4 下单
-	CurrencyPair *string `json:"currency_pair,omitempty"` //string	是	交易货币对
-	Type         *string `json:"type,omitempty"`          //string	否	订单类型 limit : 限价单 market : 市价单
-	Account      *string `json:"account,omitempty"`       //string	否	账户类型，spot - 现货账户，margin - 杠杆账户，cross_margin - 全仓杠杆账户，unified - 统一账户
-	Side         *string `json:"side,omitempty"`          //string	是	买单或者卖单 buy sell
-	Amount       *string `json:"amount,omitempty"`        //string	是	交易数量
-	Price        *string `json:"price,omitempty"`         //string	否	交易价,type=limit时必填
-	TimeInForce  *string `json:"time_in_force,omitempty"` //string	否	Time in force 策略。 gtc ioc poc fok type=market时仅支持ioc和fok
-	Iceberg      *string `json:"iceberg,omitempty"`       //string	否	冰山下单显示的数量，不指定或传 0 都默认为普通下单。目前不支持全部冰山。
-	AutoBorrow   *bool   `json:"auto_borrow,omitempty"`   //boolean	否	杠杆(包括逐仓全仓)交易时，如果账户余额不足，是否由系统自动借入不足部分
-	AutoRepay    *bool   `json:"auto_repay,omitempty"`    //boolean	否	全仓杠杆下单是否开启自动还款，默认关闭。需要注意的是: auto_borrow 与 auto_repay 支持同时开启
-	StpAct       *string `json:"stp_act,omitempty"`       //string	否	Self-Trading Prevention Action,用户可以用该字段设置自定义限制自成交策略。 cn co cb
-	ActionMode   *string `json:"action_mode,omitempty"`   //string	否	处理模式: 下单时根据action_mode返回不同的字段, 该字段只在请求时有效，响应结果中不包含该字段 ACK: 异步模式，只返回订单关键字段 RESULT: 无清算信息 FULL: 完整模式（默认）
+	Text         *string `json:"text"`          //string	否	订单自定义信息，用户可以用该字段设置自定义 ID，用户自定义字段必须满足以下条件：必须以 t- 开头；不计算 t- ，长度不能超过 28 字节；输入内容只能包含数字、字母、下划线(_)、中划线(-) 或者点(.)；除用户自定义信息以外，以下为内部保留字段，标识订单来源: 101 代表 android 下单 102 代表 IOS 下单 103 代表 IPAD 下单 104 代表 webapp 下单 3 代表 web 下单 2 代表 apiv2 下单 apiv4 代表 apiv4 下单
+	CurrencyPair *string `json:"currency_pair"` //string	是	交易货币对
+	Type         *string `json:"type"`          //string	否	订单类型 limit : 限价单 market : 市价单
+	Account      *string `json:"account"`       //string	否	账户类型，spot - 现货账户，margin - 杠杆账户，cross_margin - 全仓杠杆账户，unified - 统一账户
+	Side         *string `json:"side"`          //string	是	买单或者卖单 buy sell
+	Amount       *string `json:"amount"`        //string	是	交易数量
+	Price        *string `json:"price"`         //string	否	交易价,type=limit时必填
+	TimeInForce  *string `json:"time_in_force"` //string	否	Time in force 策略。 gtc ioc poc fok type=market时仅支持ioc和fok
+	Iceberg      *string `json:"iceberg"`       //string	否	冰山下单显示的数量，不指定或传 0 都默认为普通下单。目前不支持全部冰山。
+	AutoBorrow   *bool   `json:"auto_borrow"`   //boolean	否	杠杆(包括逐仓全仓)交易时，如果账户余额不足，是否由系统自动借入不足部分
+	AutoRepay    *bool   `json:"auto_repay"`    //boolean	否	全仓杠杆下单是否开启自动还款，默认关闭。需要注意的是: auto_borrow 与 auto_repay 支持同时开启
+	StpAct       *string `json:"stp_act"`       //string	否	Self-Trading Prevention Action,用户可以用该字段设置自定义限制自成交策略。 cn co cb
+	ActionMode   *string `json:"action_mode"`   //string	否	处理模式: 下单时根据action_mode返回不同的字段, 该字段只在请求时有效，响应结果中不包含该字段 ACK: 异步模式，只返回订单关键字段 RESULT: 无清算信息 FULL: 完整模式（默认）
 }
 
 type PrivateRestSpotOrdersPostAPI struct {

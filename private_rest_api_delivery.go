@@ -48,7 +48,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePositionsContract()
 }
 
 func (api *PrivateRestDeliverySettlePositionsContractAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePositionsContractRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContract])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContract])
 	return gateCallApiWithSecret[PrivateRestDeliverySettlePositionsContractRes](api.client.c, url, NIL_REQBODY, GET)
 }
 
@@ -61,7 +61,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePositionsContractMa
 }
 
 func (api *PrivateRestDeliverySettlePositionsContractMarginAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePositionsContractMarginRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractMargin])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractMargin])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePositionsContractLe
 }
 
 func (api *PrivateRestDeliverySettlePositionsContractLeverageAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePositionsContractLeverageRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractLeverage])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractLeverage])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePositionsContractRi
 }
 
 func (api *PrivateRestDeliverySettlePositionsContractRiskLimitAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePositionsContractRiskLimitRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractRiskLimit])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractRiskLimit])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettleOrdersPost() *Priva
 }
 
 func (api *PrivateRestDeliverySettleOrdersPostAPI) Do() (*GateRestRes[PrivateRestDeliverySettleOrdersPostRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersPost])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersPost])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettleOrdersDelete() *Pri
 }
 
 func (api *PrivateRestDeliverySettleOrdersDeleteAPI) Do() (*GateRestRes[PrivateRestDeliverySettleOrdersDeleteRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersDelete])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersDelete])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -172,7 +172,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettleOrdersOrderIdDelete
 }
 
 func (api *PrivateRestDeliverySettleOrdersOrderIdDeleteAPI) Do() (*GateRestRes[PrivateRestDeliverySettleOrdersOrderIdDeleteRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersOrderIdDelete])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersOrderIdDelete])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -228,7 +228,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettleSettlements() *Priv
 }
 
 func (api *PrivateRestDeliverySettleSettlementsAPI) Do() (*GateRestRes[PrivateRestDeliverySettleSettlementsRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleSettlements])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleSettlements])
 	return gateCallApiWithSecret[PrivateRestDeliverySettleSettlementsRes](api.client.c, url, NIL_REQBODY, GET)
 }
 
@@ -241,7 +241,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePriceOrdersPost() *
 }
 
 func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePriceOrdersPostRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePriceOrdersPost])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePriceOrdersPost])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -271,7 +271,7 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePriceOrdersDelete()
 }
 
 func (api *PrivateRestDeliverySettlePriceOrdersDeleteAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePriceOrdersDeleteRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePriceOrdersDelete])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePriceOrdersDelete])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err

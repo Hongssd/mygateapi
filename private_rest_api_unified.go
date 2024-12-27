@@ -48,7 +48,7 @@ func (client *PrivateRestClient) NewPrivateRestUnifiedUnifiedModePut() *PrivateR
 }
 
 func (api *PrivateRestUnifiedUnifiedModePutAPI) Do() (*GateRestRes[PrivateRestUnifiedUnifiedModePutRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestUnifiedUnifiedModePut])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestUnifiedUnifiedModePut])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (client *PrivateRestClient) NewPrivateRestUnifiedLeverageUserCurrencySettin
 }
 
 func (api *PrivateRestUnifiedLeverageUserCurrencySettingPostAPI) Do() (*GateRestRes[PrivateRestUnifiedLeverageUserCurrencySettingPostRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestUnifiedLeverageUserCurrencySettingPost])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestUnifiedLeverageUserCurrencySettingPost])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err

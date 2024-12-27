@@ -61,7 +61,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettlePositionsContractMar
 }
 
 func (api *PrivateRestFuturesSettlePositionsContractMarginAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePositionsContractMarginRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractMargin])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractMargin])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -78,7 +78,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettlePositionsContractLev
 }
 
 func (api *PrivateRestFuturesSettlePositionsContractLeverageAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePositionsContractLeverageRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractLeverage])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractLeverage])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettlePositionsContractRis
 }
 
 func (api *PrivateRestFuturesSettlePositionsContractRiskLimitAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePositionsContractRiskLimitRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractRiskLimit])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractRiskLimit])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualMode() *PrivateR
 }
 
 func (api *PrivateRestFuturesSettleDualModeAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualModeRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualMode])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualMode])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -129,7 +129,7 @@ func (client *PrivateRestClient) NewPirvateRestFuturesSettleDualCompPositionsCon
 }
 
 func (api *PrivateRestFuturesSettleDualCompPositionsContractAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualCompPositionsContractRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContract])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContract])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -146,7 +146,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualCompPositionsCon
 }
 
 func (api *PrivateRestFuturesSettleDualCompPositionsContractMarginAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualCompPositionsContractMarginRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractMargin])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractMargin])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -163,7 +163,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualCompPositionsCon
 }
 
 func (api *PrivateRestFuturesSettleDualCompPositionsContractLeverageAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualCompPositionsContractLeverageRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractLeverage])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractLeverage])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -180,7 +180,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualCompPositionsCon
 }
 
 func (api *PrivateRestFuturesSettleDualCompPositionsContractRiskLimitAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualCompPositionsContractRiskLimitRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractRiskLimit])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractRiskLimit])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
@@ -197,8 +197,9 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleOrdersPost() *Privat
 }
 
 func (api *PrivateRestFuturesSettleOrdersPostAPI) Do() (*GateRestRes[PrivateRestFuturesSettleOrdersPostRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleOrdersPost])
-	reqBody, err := json.Marshal(api.req)
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleOrdersPost])
+	// 删除settle字段
+	reqBody, err := removeSettleFromReqBody(api.req)
 	if err != nil {
 		return nil, err
 	}
@@ -253,7 +254,7 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleOrdersOrderIdPut() *
 }
 
 func (api *PrivateRestFuturesSettleOrdersOrderIdPutAPI) Do() (*GateRestRes[PrivateRestFuturesSettleOrdersOrderIdPutRes], error) {
-	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleOrdersOrderIdPut])
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleOrdersOrderIdPut])
 	reqBody, err := json.Marshal(api.req)
 	if err != nil {
 		return nil, err
