@@ -35,19 +35,19 @@ type PublicRestSpotCurrencyPairsAllAPI struct {
 	req    *PublicRestSpotCurrencyPairsAllReq
 }
 
-type PublicRestSpotCurrencyPairsSingleReq struct {
+type PublicRestSpotCurrencyPairsCurrencyPairReq struct {
 	CurrencyPair *string `json:"currency_pair"`
 }
 
 // currency_pair	请求参数	string	是	交易对名称
-func (api *PublicRestSpotCurrencyPairsSingleAPI) CurrencyPair(currencyPair string) *PublicRestSpotCurrencyPairsSingleAPI {
+func (api *PublicRestSpotCurrencyPairsCurrencyPairAPI) CurrencyPair(currencyPair string) *PublicRestSpotCurrencyPairsCurrencyPairAPI {
 	api.req.CurrencyPair = GetPointer(currencyPair)
 	return api
 }
 
-type PublicRestSpotCurrencyPairsSingleAPI struct {
+type PublicRestSpotCurrencyPairsCurrencyPairAPI struct {
 	client *PublicRestClient
-	req    *PublicRestSpotCurrencyPairsSingleReq
+	req    *PublicRestSpotCurrencyPairsCurrencyPairReq
 }
 
 type PublicRestSpotTickersReq struct {
@@ -210,4 +210,11 @@ type PublicRestSpotCandlesticksAPI struct {
 
 type PublicRestSpotFeeReq struct {
 	CurrencyPair *string `json:"currency_pair"`
+}
+
+type PublicRestSpotTimeReq struct{}
+
+type PublicRestSpotTimeAPI struct {
+	client *PublicRestClient
+	req    *PublicRestSpotTimeReq
 }

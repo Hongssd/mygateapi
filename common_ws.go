@@ -6,6 +6,7 @@ import (
 	"github.com/bwmarrin/snowflake"
 	"github.com/gorilla/websocket"
 	"golang.org/x/sync/errgroup"
+	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -14,13 +15,16 @@ import (
 )
 
 const (
-	GATE_API_WS_SPOT    = "api.gateio.ws"
-	GATE_API_WS_FUTURES = "fx-ws.gateio.ws"
+	GATE_API_WS_SPOT     = "api.gateio.ws"
+	GATE_API_WS_FUTURES  = "fx-ws.gateio.ws"
+	GATE_API_WS_DELIVERY = "fx-ws.gateio.ws"
 )
 const (
-	GATE_API_WS_SPOT_PATH         = "/ws/v4/"     //现货公共私有频道合一
-	GATE_API_WS_FUTURES_PATH_USDT = "/v4/ws/usdt" //合约USDT结算路径
-	GATE_API_WS_FUTURES_PATH_BTC  = "/v4/ws/btc"  //合约BTC结算路径
+	GATE_API_WS_SPOT_PATH          = "/ws/v4/"              //现货公共私有频道合一
+	GATE_API_WS_FUTURES_PATH_USDT  = "/v4/ws/usdt"          //合约USDT结算路径
+	GATE_API_WS_FUTURES_PATH_BTC   = "/v4/ws/btc"           //合约BTC结算路径
+	GATE_API_WS_DELIVERY_PATH_USDT = "/v4/ws/delivery/usdt" //交割合约USDT结算路径
+	GATE_API_WS_DELIVERY_PATH_BTC  = "/v4/ws/delivery/btc"  //交割合约BTC结算路径
 )
 
 type ContractType string
@@ -55,6 +59,7 @@ type WsStreamClient struct {
 	apiType      APIType
 	contractType ContractType
 	conn         *websocket.Conn
+	proxy        *url.URL
 	connId       string
 
 	waitSubscribeResMap MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //等待订阅结果
@@ -62,7 +67,22 @@ type WsStreamClient struct {
 	currentSubMap MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //当前订阅成功的所有结果
 	candleSubMap  MySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]        //K线推送订阅频道
 
-	orderSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsOrder]]] //订单推送订阅频道
+	spotBookTickerSubMap      MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBookTicker]]]      //最优买卖价推送订阅频道
+	spotOrderBookUpdateSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBookUdpate]]] //深度增量更新推送订阅频道
+	spotOrderBookSubMap       MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBook]]]       //深度全量更新推送订阅频道
+	spotTickerSubMap          MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotTicker]]]          //现货ticker频道推送订阅频道
+	spotTradeSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotTrade]]]           //现货trade频道推送订阅频道
+	spotOrderSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrder]]]           //订单推送订阅频道
+	spotBalanceSubMap         MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBalance]]]         //现货账户余额推送订阅频道
+	spotCrossBalanceSubMap    MySyncMap[string, *Subscription[WsSubscribeResult[[]WsSpotCrossBalance]]]  //现货跨账户余额推送订阅频道
+
+	futuresTickerSubMap          MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesTicker]]]        //Futures ticker频道推送订阅频道
+	futuresOrderBookSubMap       MySyncMap[string, *Subscription[WsSubscribeResult[WsFuturesOrderBook]]]       //Futures OrderBook全量推送订阅频道
+	futuresOrderBookUpdateSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsFuturesOrderBookUpdate]]] //Futures OrderBook增量推送订阅频道
+	futuresTradeSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesTrade]]]         //Futures trade频道推送订阅频道
+	futuresOrderSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesOrder]]]         //Futures 订单推送订阅频道
+	futuresBalanceSubMap         MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesBalance]]]       //Futures 账户余额推送订阅频道
+	futuresPositionSubMap        MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesPosition]]]      //Futures 持仓推送订阅频道
 
 	resultChan chan []byte
 	errChan    chan error
@@ -327,6 +347,10 @@ func (ws *WsStreamClient) Close() error {
 	ws.currentSubMap = NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]]()
 	ws.candleSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]()
 
+	ws.spotBookTickerSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBookTicker]]]()
+	ws.spotOrderBookUpdateSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBookUdpate]]]()
+	ws.spotOrderBookSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBook]]]()
+
 	return nil
 }
 
@@ -362,6 +386,9 @@ type SpotWsStreamClient struct {
 type FuturesWsStreamClient struct {
 	WsStreamClient
 }
+type DeliveryWsStreamClient struct {
+	WsStreamClient
+}
 
 func NewSpotWsStreamClient(client *RestClient) *SpotWsStreamClient {
 	return &SpotWsStreamClient{
@@ -377,6 +404,18 @@ func NewFuturesWsStreamClient(client *RestClient, contractType ContractType) *Fu
 	return &FuturesWsStreamClient{
 		WsStreamClient{
 			apiType:       WS_FUTURES,
+			contractType:  contractType,
+			client:        client,
+			currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
+			candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+		},
+	}
+}
+
+func NewDeliveryStreamClient(client *RestClient, contractType ContractType) *DeliveryWsStreamClient {
+	return &DeliveryWsStreamClient{
+		WsStreamClient{
+			apiType:       WS_DELIVERY,
 			contractType:  contractType,
 			client:        client,
 			currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
@@ -522,7 +561,7 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					continue
 				}
 
-				//合约K线处理
+				//永续/交割合约K线处理
 				if strings.Contains(string(data), "futures.candlesticks") && strings.Contains(string(data), "event\":\"update") {
 					c, err := handleWsData[[]WsFutureCandles](data)
 					if err != nil {
@@ -558,17 +597,17 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 
 				//现货订单推送处理
 				if strings.Contains(string(data), "spot.orders") && strings.Contains(string(data), "event\":\"update") {
-					o, err := handleWsData[[]WsOrder](data)
+					o, err := handleWsData[[]WsSpotOrder](data)
 					if err != nil {
 						log.Error(err)
 						continue
 					}
-					orders := splitSlice(o, func(o WsOrder) *WsOrder {
+					orders := splitSlice(o, func(o WsSpotOrder) *WsSpotOrder {
 						return &o
 					})
 					for _, order := range orders {
 						keyAll := "!all"
-						if sub, ok := ws.orderSubMap.Load(keyAll); ok {
+						if sub, ok := ws.spotOrderSubMap.Load(keyAll); ok {
 							if err != nil {
 								sub.errChan <- err
 								continue
@@ -576,7 +615,7 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 							sub.resultChan <- *order
 						}
 						key := order.Result.CurrencyPair
-						if sub, ok := ws.orderSubMap.Load(key); ok {
+						if sub, ok := ws.spotOrderSubMap.Load(key); ok {
 							if err != nil {
 								sub.errChan <- err
 								continue
@@ -584,6 +623,259 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 							sub.resultChan <- *order
 						}
 
+					}
+					continue
+				}
+
+				// 现货最优买卖价推送处理
+				if strings.Contains(string(data), "spot.book_ticker") && strings.Contains(string(data), "event\":\"update") {
+					bt, err := handleWsData[WsSpotBookTicker](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := bt.Result.CurrencyPair
+					if sub, ok := ws.spotBookTickerSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *bt
+					}
+					continue
+				}
+
+				// 现货深度增量更新推送处理
+				if strings.Contains(string(data), "spot.order_book_update") && strings.Contains(string(data), "event\":\"update") {
+					ob, err := handleWsData[WsSpotOrderBookUdpate](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.CurrencyPair
+					if sub, ok := ws.spotOrderBookUpdateSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *ob
+					}
+
+					continue
+				}
+
+				// 现货深度全量更新推送处理
+				if strings.Contains(string(data), "spot.order_book") && strings.Contains(string(data), "event\":\"update") {
+					ob, err := handleWsData[WsSpotOrderBook](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.CurrencyPair
+					if sub, ok := ws.spotOrderBookSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *ob
+					}
+					continue
+				}
+
+				// 现货ticker推送处理
+				if strings.Contains(string(data), "spot.tickers") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[WsSpotTicker](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := t.Result.CurrencyPair
+					if sub, ok := ws.spotTickerSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *t
+					}
+					continue
+				}
+
+				// 现货trade推送处理
+				if strings.Contains(string(data), "spot.trades") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[WsSpotTrade](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := t.Result.CurrencyPair
+					if sub, ok := ws.spotTradeSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *t
+					}
+					continue
+				}
+
+				// 现货余额推送处理
+				if strings.Contains(string(data), "spot.balances") && strings.Contains(string(data), "event\":\"update") {
+					b, err := handleWsData[WsSpotBalance](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := b.Channel
+					if sub, ok := ws.spotBalanceSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *b
+					}
+					continue
+				}
+
+				// 全仓杠杆账户余额推送处理
+				if strings.Contains(string(data), "spot.cross_balances") && strings.Contains(string(data), "event\":\"update") {
+					b, err := handleWsData[[]WsSpotCrossBalance](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := b.Channel
+					if sub, ok := ws.spotCrossBalanceSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *b
+					}
+					continue
+				}
+
+				// 合约ticker推送处理
+				if strings.Contains(string(data), "futures.tickers") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[[]WsFuturesTicker](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := (*t.Result)[0].Contract
+					if sub, ok := ws.futuresTickerSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *t
+					}
+					continue
+				}
+
+				// 合约OrderBook全量推送处理
+				if strings.Contains(string(data), "futures.order_book") && strings.Contains(string(data), "event\":\"all") {
+					ob, err := handleWsData[WsFuturesOrderBook](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.Contract
+					if sub, ok := ws.futuresOrderBookSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *ob
+					}
+					continue
+				}
+
+				// 合约OrderBook增量推送处理
+				if strings.Contains(string(data), "futures.order_book_update") && strings.Contains(string(data), "event\":\"update") {
+					ob, err := handleWsData[WsFuturesOrderBookUpdate](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.Contract
+					if sub, ok := ws.futuresOrderBookUpdateSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *ob
+					}
+					continue
+				}
+
+				// 合约trade推送处理
+				if strings.Contains(string(data), "futures.trades") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[[]WsFuturesTrade](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := (*t.Result)[0].Contract
+					if sub, ok := ws.futuresTradeSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *t
+					}
+					continue
+				}
+
+				// 合约订单推送处理
+				if strings.Contains(string(data), "futures.orders") && strings.Contains(string(data), "event\":\"update") {
+					o, err := handleWsData[[]WsFuturesOrder](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := (*o.Result)[0].Contract
+					if sub, ok := ws.futuresOrderSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *o
+					}
+					continue
+				}
+
+				// 永续/交割合约余额推送
+				if strings.Contains(string(data), "futures.balances") && strings.Contains(string(data), "event\":\"update") {
+					b, err := handleWsData[[]WsFuturesBalance](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := b.Channel
+					if sub, ok := ws.futuresBalanceSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *b
+					}
+					continue
+				}
+
+				// 永续/交割合约持仓推送
+				if strings.Contains(string(data), "futures.positions") && strings.Contains(string(data), "event\":\"update") {
+					p, err := handleWsData[[]WsFuturesPosition](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := (*p.Result)[0].Contract
+					if sub, ok := ws.futuresPositionSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *p
 					}
 					continue
 				}
@@ -629,7 +921,20 @@ func (ws *WsStreamClient) catchSubscribeResult(sub *Subscription[WsSubscribeResu
 
 // 标准订阅方法
 func wsStreamServe(api string, resultChan chan []byte, errChan chan error) (*websocket.Conn, error) {
-	c, _, err := websocket.DefaultDialer.Dial(api, nil)
+	dialer := websocket.DefaultDialer
+	proxies := GetCurrentProxyList()
+	if UseProxy && WsUseProxy && proxyList != nil && len(proxies) > 0 {
+		proxy, _ := getBestProxyAndWeight()
+		if proxy != nil {
+			u, err := url.Parse(proxy.ProxyUrl)
+			if err != nil {
+				log.Error(err)
+				return nil, err
+			}
+			dialer.Proxy = http.ProxyURL(u)
+		}
+	}
+	c, _, err := dialer.Dial(api, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -668,6 +973,8 @@ func getWsApiHost(apiType APIType) string {
 		return GATE_API_WS_SPOT
 	case WS_FUTURES:
 		return GATE_API_WS_FUTURES
+	case WS_DELIVERY:
+		return GATE_API_WS_DELIVERY
 	default:
 		return ""
 	}
@@ -684,6 +991,15 @@ func getWsApiPath(apiType APIType, contractType ContractType) string {
 			return GATE_API_WS_FUTURES_PATH_BTC
 		case USDT_CONTRACT:
 			return GATE_API_WS_FUTURES_PATH_USDT
+		default:
+			return ""
+		}
+	case WS_DELIVERY:
+		switch contractType {
+		case BTC_CONTRACT:
+			return GATE_API_WS_DELIVERY_PATH_BTC
+		case USDT_CONTRACT:
+			return GATE_API_WS_DELIVERY_PATH_USDT
 		default:
 			return ""
 		}

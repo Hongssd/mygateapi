@@ -51,7 +51,7 @@ func SetUseProxy(useProxy bool, proxyUrls ...string) {
 	proxyList = newProxyList
 }
 
-func setWsUseProxy(useProxy bool) error {
+func SetWsUseProxy(useProxy bool) error {
 	if !UseProxy {
 		return errors.New("please set UseProxy first")
 	}
@@ -132,7 +132,7 @@ func RequestWithHeader(urlStr string, reqBody []byte, method string, headerMap m
 		req.Header.Add("Accept-Encoding", "gzip")
 	}
 	req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
-
+	log.Debug(req.Header)
 	log.Debug(method, ": ", req.URL.String())
 	if reqBody != nil && len(reqBody) > 0 {
 		log.Debug("reqBody: ", string(reqBody))
