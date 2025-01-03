@@ -190,6 +190,12 @@ func (api *PublicRestFuturesSettleCandlesticksAPI) Limit(limit int) *PublicRestF
 	return api
 }
 
+// interval	请求参数	string	否	数据点的时间间隔，注意 1w 代表一个自然周，7d 的时间是和 Unix 初始时间对齐, 30d 代表一个自然月
+func (api *PublicRestFuturesSettleCandlesticksAPI) Interval(interval string) *PublicRestFuturesSettleCandlesticksAPI {
+	api.req.Interval = GetPointer(interval)
+	return api
+}
+
 type PublicRestFuturesSettleCandlesticksAPI struct {
 	client *PublicRestClient
 	req    *PublicRestFuturesSettleCandlesticksReq
