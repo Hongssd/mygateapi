@@ -51,7 +51,7 @@ func SetUseProxy(useProxy bool, proxyUrls ...string) {
 	proxyList = newProxyList
 }
 
-func setWsUseProxy(useProxy bool) error {
+func SetWsUseProxy(useProxy bool) error {
 	if !UseProxy {
 		return errors.New("please set UseProxy first")
 	}

@@ -90,6 +90,7 @@ const (
 	REST APIType = iota
 	WS_SPOT
 	WS_FUTURES
+	WS_DELIVERY
 )
 
 type Client struct {
