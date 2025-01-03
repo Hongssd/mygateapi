@@ -65,7 +65,7 @@ func (api *PublicRestSpotTickersAPI) Do() (*GateRestRes[PublicRestSpotTickersRes
 }
 
 // gate PublicRestSpotOrderBook PublicRest接口 GET 获取市场深度信息
-func (client *PublicRestClient) NewPublicRestPublicOrderBook() *PublicRestSpotOrderBookAPI {
+func (client *PublicRestClient) NewPublicRestSpotOrderBook() *PublicRestSpotOrderBookAPI {
 	return &PublicRestSpotOrderBookAPI{
 		client: client,
 		req:    &PublicRestSpotOrderBookReq{},
