@@ -247,6 +247,27 @@ type WsFuturesTrade struct {
 	IsInternal   bool   `json:"is_internal"`    //是否为内部成交。内部成交是指保险资金和 ADL 用户对强平指令的接管。由于不是市场深度上的正常撮合，交易价格可能会出现偏差，不会记录在 K 线上。如果不是内部交易，则该字段不会被返回。
 }
 
+type WsFuturesPosition struct {
+	Contract        string  `json:"contract"`         //合约名称
+	EntryPrice      string  `json:"entry_price"`      //开仓价格
+	HistoryPnl      string  `json:"history_pnl"`      //已平仓的仓位总盈亏
+	HistoryPoint    string  `json:"history_point"`    //已平仓的点卡总盈亏
+	LastClosePnl    string  `json:"last_close_pnl"`   //最近一次平仓的盈亏
+	Leverage        int     `json:"leverage"`         //杠杆倍数，0代表全仓，正数代表逐仓
+	LeverageMax     int     `json:"leverage_max"`     //当前风险限额下，允许的最大杠杆倍数
+	LiqPrice        float64 `json:"liq_price"`        //爆仓价格
+	MaintenanceRate float64 `json:"maintenance_rate"` //当前风险限额下，维持保证金比例
+	Margin          string  `json:"margin"`           //保证金
+	RealisedPnl     string  `json:"realised_pnl"`     //已实现盈亏
+	RealisedPoint   string  `json:"realised_point"`   //点卡已实现盈亏
+	RiskLimit       int     `json:"risk_limit"`       //风险限额
+	Size            int     `json:"size"`             //合约 size
+	Time            int     `json:"time"`             //更新 unix 时间戳
+	TimeMs          int     `json:"time_ms"`          //更新 unix 时间戳（以毫秒为单位）
+	User            string  `json:"user"`             //用户 ID
+	UpdateId        int     `json:"update_id"`        //消息序列号，每次推送 order 之后会自增 1
+}
+
 type WsFuturesBalance struct {
 	Balance  string `json:"balance"`  //余额最终数量
 	Change   string `json:"change"`   //余额变化数量

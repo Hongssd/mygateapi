@@ -82,6 +82,7 @@ type WsStreamClient struct {
 	futuresTradeSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesTrade]]]         //Futures trade频道推送订阅频道
 	futuresOrderSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesOrder]]]         //Futures 订单推送订阅频道
 	futuresBalanceSubMap         MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesBalance]]]       //Futures 账户余额推送订阅频道
+	futuresPositionSubMap        MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesPosition]]]      //Futures 持仓推送订阅频道
 
 	resultChan chan []byte
 	errChan    chan error
@@ -857,6 +858,24 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 							continue
 						}
 						sub.resultChan <- *b
+					}
+					continue
+				}
+
+				// 永续/交割合约持仓推送
+				if strings.Contains(string(data), "futures.positions") && strings.Contains(string(data), "event\":\"update") {
+					p, err := handleWsData[[]WsFuturesPosition](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := (*p.Result)[0].Contract
+					if sub, ok := ws.futuresPositionSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *p
 					}
 					continue
 				}

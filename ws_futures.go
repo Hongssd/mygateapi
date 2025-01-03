@@ -413,3 +413,80 @@ func (ws *FuturesWsStreamClient) UnSubscribeBalance(userId string) error {
 
 	return nil
 }
+
+// 订阅仓位频道
+func (ws *FuturesWsStreamClient) SubscribePosition(userId, contract string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesPosition]], error) {
+	return ws.SubscribePositionMultiple(userId, []string{contract})
+}
+func (ws *FuturesWsStreamClient) SubscribePositionMultiple(userId string, contracts []string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesPosition]], error) {
+	channel := "futures.positions"
+	payloads := [][]string{}
+	subKeys := contracts
+	for _, c := range contracts {
+		payload := []string{userId, c}
+		payloads = append(payloads, payload)
+	}
+
+	var thisSubs []*Subscription[WsSubscribeResult[[]WsFuturesPosition]]
+	var mu sync.Mutex
+	var errG errgroup.Group
+	for _, payload := range payloads {
+		payload := payload
+		errG.Go(func() error {
+			thisSub, err := subscribe[WsSubscribeResult[[]WsFuturesPosition]](&ws.WsStreamClient, channel, SUBSCRIBE, payload, subKeys, true)
+			if err != nil {
+				return err
+			}
+			ws.futuresPositionSubMap.Store(payload[1], thisSub)
+			mu.Lock()
+			thisSubs = append(thisSubs, thisSub)
+			mu.Unlock()
+			return nil
+		})
+	}
+
+	if err := errG.Wait(); err != nil {
+		return nil, err
+	}
+
+	subscription, err := mergeSubscription(thisSubs...)
+	if err != nil {
+		return nil, err
+	}
+
+	return subscription, nil
+}
+func (ws *FuturesWsStreamClient) UnSubscribePosition(userId, contract string) error {
+	return ws.UnSubscribePositionMultiple(userId, []string{contract})
+}
+func (ws *FuturesWsStreamClient) UnSubscribePositionMultiple(userId string, contracts []string) error {
+	channel := "futures.positions"
+	payloads := [][]string{}
+	subKeys := contracts
+	for _, c := range contracts {
+		payload := []string{userId, c}
+		payloads = append(payloads, payload)
+	}
+
+	var mu sync.Mutex
+	var errG errgroup.Group
+	for _, payload := range payloads {
+		payload := payload
+		errG.Go(func() error {
+			_, err := subscribe[WsSubscribeResult[[]WsFuturesPosition]](&ws.WsStreamClient, channel, UNSUBSCRIBE, payload, subKeys, true)
+			if err != nil {
+				return err
+			}
+			mu.Lock()
+			ws.futuresPositionSubMap.Delete(payload[1])
+			mu.Unlock()
+			return nil
+		})
+	}
+
+	if err := errG.Wait(); err != nil {
+		return err
+	}
+
+	return nil
+}
