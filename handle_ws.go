@@ -1,5 +1,10 @@
 package mygateapi
 
+import (
+	"github.com/shopspring/decimal"
+	"strconv"
+)
+
 type WsCandles struct {
 	Timestamp   string `json:"t"` //开盘时间
 	Interval    string `json:"n"` //K线周期 格式为 1m_BTC_USDT
@@ -12,6 +17,33 @@ type WsCandles struct {
 	WindowClose bool   `json:"w"` //是否关闭窗口，关闭表示此K线已结束
 }
 
+type WsOrderBook struct {
+	Timestamp int64        `json:"t"`  //深度更新毫秒时间戳
+	Symbol    string       `json:"s"`  //货币对
+	Id        int64        `json:"id"` //深度 ID
+	FirstId   int64        `json:"U"`  //自动上次深度后的第一个深度 ID
+	LastId    int64        `json:"u"`  //自动上次深度后的最新深度 ID
+	Bids      []PriceLevel `json:"b"`  //自上次更新以来的 bids 更新，按价格从高到低排序
+	Asks      []PriceLevel `json:"a"`  //自上次更新以来的 asks 更新，按价格从地到高排序
+
+}
+type PriceLevel struct {
+	Price    string `json:"p"` //档位价格
+	Quantity string `json:"q"` //档位的数量
+}
+
+type WsTrade struct {
+	Id           int64  `json:"id"`             //成交 ID
+	CreateTime   int64  `json:"create_time"`    //成交时间，精确到秒
+	CreateTimeMs int64  `json:"create_time_ms"` //成交时间，毫秒精度
+	Side         string `json:"side"`           //买单或者卖单
+	Symbol       string `json:"symbol"`         //交易货币对
+	Amount       string `json:"amount"`         //交易数量
+	Price        string `json:"price"`          //交易价
+	Range        string `json:"range"`          //成交范围(格式: "开始 ID-结束 ID")
+	IsInternal   bool   `json:"is_internal"`    //是否为内部成交。内部成交是指保险资金和 ADL 用户对强平指令的接管。由于不是市场深度上的正常撮合，交易价格可能会出现偏差，不会记录在 K 线上。如果不是内部交易，则该字段不会被返回。
+}
+
 type WsFutureCandles struct {
 	Timestamp   int64  `json:"t"` //开盘时间
 	Interval    string `json:"n"` //K线周期 格式为 1m_BTC_USDT
@@ -22,6 +54,20 @@ type WsFutureCandles struct {
 	Volume      int64  `json:"v"` //成交量
 	Amount      string `json:"a"` //成交额
 	WindowClose bool   `json:"w"` //是否关闭窗口，关闭表示此K线已结束
+}
+
+func (fc *WsFutureCandles) convertToWsCandle() *WsCandles {
+	return &WsCandles{
+		Timestamp:   strconv.FormatInt(fc.Timestamp, 10),
+		Interval:    fc.Interval,
+		Open:        fc.Open,
+		High:        fc.High,
+		Low:         fc.Low,
+		Close:       fc.Close,
+		Volume:      strconv.FormatInt(fc.Volume, 10),
+		Amount:      fc.Amount,
+		WindowClose: fc.WindowClose,
+	}
 }
 
 type WsSpotOrder struct {
@@ -65,6 +111,20 @@ func handleWsData[T any](data []byte) (*WsSubscribeResult[T], error) {
 	return &res, nil
 }
 
+func convertToWsData[T any, R any](originData *WsSubscribeResult[T], targetResult *R) *WsSubscribeResult[R] {
+	return &WsSubscribeResult[R]{
+		Time:    originData.Time,
+		TimeMs:  originData.TimeMs,
+		ConnId:  originData.ConnId,
+		Id:      originData.Id,
+		Channel: originData.Channel,
+		Event:   originData.Event,
+		Error:   originData.Error,
+		Payload: originData.Payload,
+		Result:  targetResult,
+	}
+}
+
 func splitSlice[T any, R any](origin *WsSubscribeResult[[]T], f func(o T) *R) []*WsSubscribeResult[R] {
 	var result []*WsSubscribeResult[R]
 	for _, v := range *origin.Result {
@@ -84,17 +144,17 @@ func splitSlice[T any, R any](origin *WsSubscribeResult[[]T], f func(o T) *R) []
 	return result
 }
 
-type WsSpotBookTicker struct {
-	Timestamp    int64  `json:"t"` //深度更新毫秒时间戳
-	UpdateId     int64  `json:"u"` //深度更新 ID
-	CurrencyPair string `json:"s"` //货币对
-	BidPrice     string `json:"b"` //最优买单价
-	BidAmount    string `json:"B"` //最优买单数量
-	AskPrice     string `json:"a"` //最优卖单价
-	AskAmount    string `json:"A"` //最优卖单数量
-}
+//type WsSpotBookTicker struct {
+//	Timestamp    int64  `json:"t"` //深度更新毫秒时间戳
+//	UpdateId     int64  `json:"u"` //深度更新 ID
+//	CurrencyPair string `json:"s"` //货币对
+//	BidPrice     string `json:"b"` //最优买单价
+//	BidAmount    string `json:"B"` //最优买单数量
+//	AskPrice     string `json:"a"` //最优卖单价
+//	AskAmount    string `json:"A"` //最优卖单数量
+//}
 
-type WsSpotOrderBookUdpate struct {
+type WsSpotOrderBookUpdate struct {
 	Timestamp    int64      `json:"t"` //深度更新毫秒时间戳
 	CurrencyPair string     `json:"s"` //货币对
 	FirstId      int64      `json:"U"` //自动上次深度后的第一个深度 ID
@@ -109,30 +169,6 @@ type WsSpotOrderBook struct {
 	CurrencyPair string     `json:"s"`            //货币对
 	Bids         [][]string `json:"bids"`         //在当前快照的 顶层 bids（买单） 数据，按价格从高到低排序
 	Asks         [][]string `json:"asks"`         //在当前快照的 顶层 asks（卖单） 数据，按价格从低到高排序
-}
-
-type WsSpotTrade struct {
-	Id           int64  `json:"id"`             //成交 ID
-	CreateTime   int64  `json:"create_time"`    //成交时间，精确到秒
-	CreateTimeMs string `json:"create_time_ms"` //成交时间，毫秒精度
-	Side         string `json:"side"`           //买单或者卖单
-	CurrencyPair string `json:"currency_pair"`  //交易货币对
-	Amount       string `json:"amount"`         //交易数量
-	Price        string `json:"price"`          //交易价
-	Range        string `json:"range"`          //成交范围(格式: "开始 ID-结束 ID")
-}
-
-type WsSpotCrossBalance struct {
-	Timestamp    int    `json:"timestamp"`     //余额更新时间戳戳，精确到秒
-	TimestampMs  int    `json:"timestamp_ms"`  //余额更新时间戳戳，精确到毫秒
-	User         string `json:"user"`          //用户 ID
-	Currency     string `json:"currency"`      //变更的货币
-	Change       string `json:"change"`        //变更数量
-	Total        string `json:"total"`         //总现货余额
-	Available    string `json:"available"`     //可用现货余额
-	Freeze       string `json:"freeze"`        //冻结余额数量
-	FreezeChange string `json:"freeze_change"` //余额锁定的变动金额
-	ChangeType   string `json:"change_type"`   //余额变动类型 withdraw deposit trade-fee-deduct order-create: 订单创建 order-match: 订单成交更新 order-update: 取消订单或修改订单 margin-transfer future-transfer cross-margin-transfer other
 }
 
 type WsFuturesOrderBook struct {
@@ -162,6 +198,174 @@ type WsFuturesOrderBookUpdate struct {
 		Price    string `json:"p"` //变更的档位价格
 		Quantity int    `json:"s"` //档位的待成交数量。如果为 0，则从订单簿中删除该价格
 	} `json:"a"` //卖方变动列表
+}
+
+func (o *WsSpotOrderBookUpdate) convertToWsOrderBook() *WsOrderBook {
+	var bids, asks []PriceLevel
+	for _, v := range o.Bids {
+		bids = append(bids, PriceLevel{
+			Price:    v[0],
+			Quantity: v[1],
+		})
+	}
+	for _, v := range o.Asks {
+		asks = append(asks, PriceLevel{
+			Price:    v[0],
+			Quantity: v[1],
+		})
+	}
+	return &WsOrderBook{
+		Timestamp: o.Timestamp,
+		Symbol:    o.CurrencyPair,
+		Id:        o.LastId,
+		FirstId:   o.FirstId,
+		LastId:    o.LastId,
+		Bids:      bids,
+		Asks:      asks,
+	}
+}
+func (o *WsSpotOrderBook) convertToWsOrderBook() *WsOrderBook {
+	var bids, asks []PriceLevel
+	for _, v := range o.Bids {
+		bids = append(bids, PriceLevel{
+			Price:    v[0],
+			Quantity: v[1],
+		})
+	}
+	for _, v := range o.Asks {
+		asks = append(asks, PriceLevel{
+			Price:    v[0],
+			Quantity: v[1],
+		})
+	}
+
+	return &WsOrderBook{
+		Timestamp: o.Timestamp,
+		Symbol:    o.CurrencyPair,
+		Id:        o.LastUpdateId,
+		FirstId:   o.LastUpdateId,
+		LastId:    o.LastUpdateId,
+		Bids:      bids,
+		Asks:      asks,
+	}
+}
+func (o *WsFuturesOrderBookUpdate) convertToWsOrderBook() *WsOrderBook {
+	var bids, asks []PriceLevel
+	for _, v := range o.Bids {
+		bids = append(bids, PriceLevel{
+			Price:    v.Price,
+			Quantity: strconv.Itoa(v.Quantity),
+		})
+	}
+	for _, v := range o.Asks {
+		asks = append(asks, PriceLevel{
+			Price:    v.Price,
+			Quantity: strconv.Itoa(v.Quantity),
+		})
+	}
+
+	return &WsOrderBook{
+		Timestamp: o.Timestamp,
+		Symbol:    o.Contract,
+		Id:        o.LastId,
+		FirstId:   o.FirstId,
+		LastId:    o.LastId,
+		Bids:      bids,
+		Asks:      asks,
+	}
+}
+func (o *WsFuturesOrderBook) convertToWsOrderBook() *WsOrderBook {
+	var bids, asks []PriceLevel
+	for _, v := range o.Bids {
+		bids = append(bids, PriceLevel{
+			Price:    v.Price,
+			Quantity: strconv.Itoa(v.Quantity),
+		})
+	}
+	for _, v := range o.Asks {
+		asks = append(asks, PriceLevel{
+			Price:    v.Price,
+			Quantity: strconv.Itoa(v.Quantity),
+		})
+	}
+
+	return &WsOrderBook{
+		Timestamp: o.Timestamp,
+		Symbol:    o.Contract,
+		Id:        o.Id,
+		FirstId:   o.Id,
+		LastId:    o.Id,
+		Bids:      bids,
+		Asks:      asks,
+	}
+}
+
+type WsSpotTrade struct {
+	Id           int64  `json:"id"`             //成交 ID
+	CreateTime   int64  `json:"create_time"`    //成交时间，精确到秒
+	CreateTimeMs string `json:"create_time_ms"` //成交时间，毫秒精度
+	Side         string `json:"side"`           //买单或者卖单
+	CurrencyPair string `json:"currency_pair"`  //交易货币对
+	Amount       string `json:"amount"`         //交易数量
+	Price        string `json:"price"`          //交易价
+	Range        string `json:"range"`          //成交范围(格式: "开始 ID-结束 ID")
+}
+type WsFuturesTrade struct {
+	Contract     string `json:"contract"`       //合约名称
+	Size         int64  `json:"size"`           //交易数量
+	Id           int64  `json:"id"`             //交易 ID
+	CreateTime   int64  `json:"create_time"`    //交易消息创建时间
+	CreateTimeMs int64  `json:"create_time_ms"` //交易消息创建时间（以毫秒为单位）
+	Price        string `json:"price"`          //交易价格
+	IsInternal   bool   `json:"is_internal"`    //是否为内部成交。内部成交是指保险资金和 ADL 用户对强平指令的接管。由于不是市场深度上的正常撮合，交易价格可能会出现偏差，不会记录在 K 线上。如果不是内部交易，则该字段不会被返回。
+}
+
+func (t *WsSpotTrade) convertToWsTrade() *WsTrade {
+	ms, _ := decimal.NewFromString(t.CreateTimeMs)
+	return &WsTrade{
+		Id:           t.Id,
+		CreateTime:   t.CreateTime,
+		CreateTimeMs: ms.IntPart(),
+		Side:         t.Side,
+		Symbol:       t.CurrencyPair,
+		Amount:       t.Amount,
+		Price:        t.Price,
+		Range:        t.Range,
+	}
+}
+func (t *WsFuturesTrade) convertToWsTrade() *WsTrade {
+	size := decimal.NewFromInt(t.Size)
+	Side := ""
+	if size.GreaterThan(decimal.Zero) {
+		Side = "buy"
+	} else {
+		Side = "sell"
+	}
+	return &WsTrade{
+		Id:           t.Id,
+		CreateTime:   t.CreateTime,
+		CreateTimeMs: t.CreateTimeMs,
+		Side:         Side,
+		Symbol:       t.Contract,
+		Amount:       size.Abs().String(),
+		Price:        t.Price,
+		Range:        "",
+		IsInternal:   false,
+	}
+
+}
+
+type WsSpotCrossBalance struct {
+	Timestamp    int    `json:"timestamp"`     //余额更新时间戳戳，精确到秒
+	TimestampMs  int    `json:"timestamp_ms"`  //余额更新时间戳戳，精确到毫秒
+	User         string `json:"user"`          //用户 ID
+	Currency     string `json:"currency"`      //变更的货币
+	Change       string `json:"change"`        //变更数量
+	Total        string `json:"total"`         //总现货余额
+	Available    string `json:"available"`     //可用现货余额
+	Freeze       string `json:"freeze"`        //冻结余额数量
+	FreezeChange string `json:"freeze_change"` //余额锁定的变动金额
+	ChangeType   string `json:"change_type"`   //余额变动类型 withdraw deposit trade-fee-deduct order-create: 订单创建 order-match: 订单成交更新 order-update: 取消订单或修改订单 margin-transfer future-transfer cross-margin-transfer other
 }
 
 type WsSpotTicker struct {
@@ -236,15 +440,6 @@ type WsFuturesOrder struct {
 	StpId        string `json:"stp_id"`         //同一 stp_id 组内的用户之间的订单不允许自交易 1.如果匹配的两个订单的 stp_id 非零且相等，则不会被执行。而是根据 taker 的 stp_act 执行相应的策略。 2.对于未设置 STP 组的订单，stp_id 默认返回 0
 	StpAct       string `json:"stp_act"`        //自我交易预防行动。用户可以通过该字段设置自我交易防范策略 1.用户加入 STP Group 后，可以通过 stp_act 来限制用户的自我交易防范策略。如果不传 stp_act，则默认为 cn 策略。 2.当用户没有加入 STP 组时，传递 stp_act 参数时会返回错误。 3.如果用户下单时没有使用'stp_act'，'stp_act'将返回'-' cn: 取消最新订单，取消新订单并保留旧订单 co: 取消最旧订单，取消旧订单并保留新订单 cb：取消两者，新旧订单都会被取消
 	AmendText    string `json:"amend_text"`     //用户修改订单时备注的自定义数据
-}
-type WsFuturesTrade struct {
-	Contract     string `json:"contract"`       //合约名称
-	Size         int    `json:"size"`           //交易数量
-	Id           int    `json:"id"`             //交易 ID
-	CreateTime   int    `json:"create_time"`    //交易消息创建时间
-	CreateTimeMs int    `json:"create_time_ms"` //交易消息创建时间（以毫秒为单位）
-	Price        string `json:"price"`          //交易价格
-	IsInternal   bool   `json:"is_internal"`    //是否为内部成交。内部成交是指保险资金和 ADL 用户对强平指令的接管。由于不是市场深度上的正常撮合，交易价格可能会出现偏差，不会记录在 K 线上。如果不是内部交易，则该字段不会被返回。
 }
 
 type WsFuturesPosition struct {

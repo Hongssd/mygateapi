@@ -8,7 +8,6 @@ import (
 	"golang.org/x/sync/errgroup"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -64,25 +63,18 @@ type WsStreamClient struct {
 
 	waitSubscribeResMap MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //等待订阅结果
 
-	currentSubMap MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //当前订阅成功的所有结果
-	candleSubMap  MySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]        //K线推送订阅频道
+	currentSubMap   MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //当前订阅成功的所有结果
+	candleSubMap    MySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]        //K线推送订阅频道
+	orderBookSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]]      //深度全量推送订阅频道
+	tradeSubMap     MySyncMap[string, *Subscription[WsSubscribeResult[WsTrade]]]          //现货trade频道推送订阅频道
 
-	spotBookTickerSubMap      MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBookTicker]]]      //最优买卖价推送订阅频道
-	spotOrderBookUpdateSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBookUdpate]]] //深度增量更新推送订阅频道
-	spotOrderBookSubMap       MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBook]]]       //深度全量更新推送订阅频道
-	spotTickerSubMap          MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotTicker]]]          //现货ticker频道推送订阅频道
-	spotTradeSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotTrade]]]           //现货trade频道推送订阅频道
-	spotOrderSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrder]]]           //订单推送订阅频道
-	spotBalanceSubMap         MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBalance]]]         //现货账户余额推送订阅频道
-	spotCrossBalanceSubMap    MySyncMap[string, *Subscription[WsSubscribeResult[[]WsSpotCrossBalance]]]  //现货跨账户余额推送订阅频道
+	spotOrderSubMap        MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrder]]]          //订单推送订阅频道
+	spotBalanceSubMap      MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBalance]]]        //现货账户余额推送订阅频道
+	spotCrossBalanceSubMap MySyncMap[string, *Subscription[WsSubscribeResult[[]WsSpotCrossBalance]]] //现货跨账户余额推送订阅频道
 
-	futuresTickerSubMap          MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesTicker]]]        //Futures ticker频道推送订阅频道
-	futuresOrderBookSubMap       MySyncMap[string, *Subscription[WsSubscribeResult[WsFuturesOrderBook]]]       //Futures OrderBook全量推送订阅频道
-	futuresOrderBookUpdateSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsFuturesOrderBookUpdate]]] //Futures OrderBook增量推送订阅频道
-	futuresTradeSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesTrade]]]         //Futures trade频道推送订阅频道
-	futuresOrderSubMap           MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesOrder]]]         //Futures 订单推送订阅频道
-	futuresBalanceSubMap         MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesBalance]]]       //Futures 账户余额推送订阅频道
-	futuresPositionSubMap        MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesPosition]]]      //Futures 持仓推送订阅频道
+	futuresOrderSubMap    MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesOrder]]]    //Futures 订单推送订阅频道
+	futuresBalanceSubMap  MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesBalance]]]  //Futures 账户余额推送订阅频道
+	futuresPositionSubMap MySyncMap[string, *Subscription[WsSubscribeResult[[]WsFuturesPosition]]] //Futures 持仓推送订阅频道
 
 	resultChan chan []byte
 	errChan    chan error
@@ -346,10 +338,11 @@ func (ws *WsStreamClient) Close() error {
 
 	ws.currentSubMap = NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]]()
 	ws.candleSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]()
-
-	ws.spotBookTickerSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBookTicker]]]()
-	ws.spotOrderBookUpdateSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBookUdpate]]]()
-	ws.spotOrderBookSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBook]]]()
+	ws.orderBookSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]]()
+	//
+	//ws.spotBookTickerSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBookTicker]]]()
+	//ws.spotOrderBookUpdateSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBookUpdate]]]()
+	//ws.spotOrderBookSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBook]]]()
 
 	return nil
 }
@@ -560,7 +553,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-
 				//永续/交割合约K线处理
 				if strings.Contains(string(data), "futures.candlesticks") && strings.Contains(string(data), "event\":\"update") {
 					c, err := handleWsData[[]WsFutureCandles](data)
@@ -568,19 +560,8 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 						log.Error(err)
 						continue
 					}
-					//使用交易所规则，interval_symbol作为唯一key
 					cs := splitSlice(c, func(o WsFutureCandles) *WsCandles {
-						return &WsCandles{
-							Timestamp:   strconv.FormatInt(o.Timestamp, 10),
-							Interval:    o.Interval,
-							Open:        o.Open,
-							High:        o.High,
-							Low:         o.Low,
-							Close:       o.Close,
-							Volume:      strconv.FormatInt(o.Volume, 10),
-							Amount:      o.Amount,
-							WindowClose: o.WindowClose,
-						}
+						return o.convertToWsCandle()
 					})
 					for _, candle := range cs {
 						key := candle.Result.Interval
@@ -590,6 +571,114 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 								continue
 							}
 							sub.resultChan <- *candle
+						}
+					}
+					continue
+				}
+				// 现货深度增量更新推送处理
+				if strings.Contains(string(data), "spot.order_book_update") && strings.Contains(string(data), "event\":\"update") {
+					ob, err := handleWsData[WsSpotOrderBookUpdate](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					ob.Result.convertToWsOrderBook()
+					key := ob.Result.CurrencyPair
+					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					}
+					continue
+				}
+				// 现货深度全量更新推送处理
+				if strings.Contains(string(data), "spot.order_book") && strings.Contains(string(data), "event\":\"update") {
+					ob, err := handleWsData[WsSpotOrderBook](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.CurrencyPair
+					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					}
+					continue
+				}
+				// 合约OrderBook全量推送处理
+				if strings.Contains(string(data), "futures.order_book") && strings.Contains(string(data), "event\":\"all") {
+					ob, err := handleWsData[WsFuturesOrderBook](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.Contract
+					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					}
+					continue
+				}
+				// 合约OrderBook增量推送处理
+				if strings.Contains(string(data), "futures.order_book_update") && strings.Contains(string(data), "event\":\"update") {
+					ob, err := handleWsData[WsFuturesOrderBookUpdate](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := ob.Result.Contract
+					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					}
+					continue
+				}
+				// 现货trade推送处理
+				if strings.Contains(string(data), "spot.trades") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[WsSpotTrade](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					key := t.Result.CurrencyPair
+					if sub, ok := ws.tradeSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *convertToWsData(t, t.Result.convertToWsTrade())
+					}
+					continue
+				}
+				// 合约trade推送处理
+				if strings.Contains(string(data), "futures.trades") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[[]WsFuturesTrade](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					ts := splitSlice(t, func(o WsFuturesTrade) *WsTrade {
+						return o.convertToWsTrade()
+					})
+					key := (*t.Result)[0].Contract
+					if sub, ok := ws.tradeSubMap.Load(key); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						for _, t := range ts {
+							sub.resultChan <- *t
 						}
 					}
 					continue
@@ -626,98 +715,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-
-				// 现货最优买卖价推送处理
-				if strings.Contains(string(data), "spot.book_ticker") && strings.Contains(string(data), "event\":\"update") {
-					bt, err := handleWsData[WsSpotBookTicker](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := bt.Result.CurrencyPair
-					if sub, ok := ws.spotBookTickerSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *bt
-					}
-					continue
-				}
-
-				// 现货深度增量更新推送处理
-				if strings.Contains(string(data), "spot.order_book_update") && strings.Contains(string(data), "event\":\"update") {
-					ob, err := handleWsData[WsSpotOrderBookUdpate](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := ob.Result.CurrencyPair
-					if sub, ok := ws.spotOrderBookUpdateSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *ob
-					}
-
-					continue
-				}
-
-				// 现货深度全量更新推送处理
-				if strings.Contains(string(data), "spot.order_book") && strings.Contains(string(data), "event\":\"update") {
-					ob, err := handleWsData[WsSpotOrderBook](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := ob.Result.CurrencyPair
-					if sub, ok := ws.spotOrderBookSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *ob
-					}
-					continue
-				}
-
-				// 现货ticker推送处理
-				if strings.Contains(string(data), "spot.tickers") && strings.Contains(string(data), "event\":\"update") {
-					t, err := handleWsData[WsSpotTicker](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := t.Result.CurrencyPair
-					if sub, ok := ws.spotTickerSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *t
-					}
-					continue
-				}
-
-				// 现货trade推送处理
-				if strings.Contains(string(data), "spot.trades") && strings.Contains(string(data), "event\":\"update") {
-					t, err := handleWsData[WsSpotTrade](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := t.Result.CurrencyPair
-					if sub, ok := ws.spotTradeSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *t
-					}
-					continue
-				}
-
 				// 现货余额推送处理
 				if strings.Contains(string(data), "spot.balances") && strings.Contains(string(data), "event\":\"update") {
 					b, err := handleWsData[WsSpotBalance](data)
@@ -735,7 +732,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-
 				// 全仓杠杆账户余额推送处理
 				if strings.Contains(string(data), "spot.cross_balances") && strings.Contains(string(data), "event\":\"update") {
 					b, err := handleWsData[[]WsSpotCrossBalance](data)
@@ -753,79 +749,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-
-				// 合约ticker推送处理
-				if strings.Contains(string(data), "futures.tickers") && strings.Contains(string(data), "event\":\"update") {
-					t, err := handleWsData[[]WsFuturesTicker](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := (*t.Result)[0].Contract
-					if sub, ok := ws.futuresTickerSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *t
-					}
-					continue
-				}
-
-				// 合约OrderBook全量推送处理
-				if strings.Contains(string(data), "futures.order_book") && strings.Contains(string(data), "event\":\"all") {
-					ob, err := handleWsData[WsFuturesOrderBook](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := ob.Result.Contract
-					if sub, ok := ws.futuresOrderBookSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *ob
-					}
-					continue
-				}
-
-				// 合约OrderBook增量推送处理
-				if strings.Contains(string(data), "futures.order_book_update") && strings.Contains(string(data), "event\":\"update") {
-					ob, err := handleWsData[WsFuturesOrderBookUpdate](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := ob.Result.Contract
-					if sub, ok := ws.futuresOrderBookUpdateSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *ob
-					}
-					continue
-				}
-
-				// 合约trade推送处理
-				if strings.Contains(string(data), "futures.trades") && strings.Contains(string(data), "event\":\"update") {
-					t, err := handleWsData[[]WsFuturesTrade](data)
-					if err != nil {
-						log.Error(err)
-						continue
-					}
-					key := (*t.Result)[0].Contract
-					if sub, ok := ws.futuresTradeSubMap.Load(key); ok {
-						if err != nil {
-							sub.errChan <- err
-							continue
-						}
-						sub.resultChan <- *t
-					}
-					continue
-				}
-
 				// 合约订单推送处理
 				if strings.Contains(string(data), "futures.orders") && strings.Contains(string(data), "event\":\"update") {
 					o, err := handleWsData[[]WsFuturesOrder](data)
@@ -843,7 +766,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-
 				// 永续/交割合约余额推送
 				if strings.Contains(string(data), "futures.balances") && strings.Contains(string(data), "event\":\"update") {
 					b, err := handleWsData[[]WsFuturesBalance](data)
@@ -861,7 +783,6 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					}
 					continue
 				}
-
 				// 永续/交割合约持仓推送
 				if strings.Contains(string(data), "futures.positions") && strings.Contains(string(data), "event\":\"update") {
 					p, err := handleWsData[[]WsFuturesPosition](data)
