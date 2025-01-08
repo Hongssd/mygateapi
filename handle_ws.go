@@ -111,6 +111,17 @@ func handleWsData[T any](data []byte) (*WsSubscribeResult[T], error) {
 	return &res, nil
 }
 
+func (c *WsCandles) HandleSubKey() string {
+	return c.Interval
+}
+
+func (o *WsOrderBook) HandleSubKey() string {
+	return o.Symbol
+}
+
+func (t *WsTrade) HandleSubKey() string {
+	return t.Symbol
+}
 func convertToWsData[T any, R any](originData *WsSubscribeResult[T], targetResult *R) *WsSubscribeResult[R] {
 	return &WsSubscribeResult[R]{
 		Time:    originData.Time,
@@ -120,8 +131,8 @@ func convertToWsData[T any, R any](originData *WsSubscribeResult[T], targetResul
 		Channel: originData.Channel,
 		Event:   originData.Event,
 		Error:   originData.Error,
-		Payload: originData.Payload,
-		Result:  targetResult,
+		//Payload: originData.Payload,
+		Result: targetResult,
 	}
 }
 
@@ -136,8 +147,8 @@ func splitSlice[T any, R any](origin *WsSubscribeResult[[]T], f func(o T) *R) []
 			Channel: origin.Channel,
 			Event:   origin.Event,
 			Error:   origin.Error,
-			Payload: origin.Payload,
-			Result:  f(v),
+			//Payload: origin.Payload,
+			Result: f(v),
 		}
 		result = append(result, r)
 	}

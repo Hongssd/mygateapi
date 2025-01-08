@@ -120,8 +120,8 @@ type WsSubscribeResult[T any] struct {
 	Channel string            `json:"channel"` //String	WebSocket 频道名称
 	Event   string            `json:"event"`   //String	服务端频道事件（即，update）或 用于从客户端发起的请求的 event
 	Error   *WsSubscribeError `json:"error"`   //Error	如果服务端正常接受客户端的请求，则返回为空；否则，返回请求被拒绝的详情。
-	Payload []string          `json:"payload"` //Any	返回来自服务端的新数据通知 或 对客户端请求的响应。如果有错误返回则 error 不为空，没有错误则此字段为空。
-	Result  *T                `json:"result"`  //Any	返回来自服务端的新数据通知 或 对客户端请求的响应。如果有错误返回则 error 不为空，没有错误则此字段为空。
+	//Payload []string          `json:"payload"` //Any	返回来自服务端的新数据通知 或 对客户端请求的响应。如果有错误返回则 error 不为空，没有错误则此字段为空。
+	Result *T `json:"result"` //Any	返回来自服务端的新数据通知 或 对客户端请求的响应。如果有错误返回则 error 不为空，没有错误则此字段为空。
 }
 
 type WsSubscribeError struct {
@@ -445,6 +445,22 @@ func (ws *WsStreamClient) sendUnSubscribeSuccessToCloseChan(reqId int64, subKeys
 				sub.closeChan = nil
 			}
 		}
+		//删除深度订阅者
+		if sub, ok := ws.orderBookSubMap.Load(key); ok {
+			ws.orderBookSubMap.Delete(key)
+			if sub.closeChan != nil {
+				sub.closeChan <- struct{}{}
+				sub.closeChan = nil
+			}
+		}
+		//删除成交订阅者
+		if sub, ok := ws.tradeSubMap.Load(key); ok {
+			ws.tradeSubMap.Delete(key)
+			if sub.closeChan != nil {
+				sub.closeChan <- struct{}{}
+				sub.closeChan = nil
+			}
+		}
 	}
 
 }
@@ -525,7 +541,7 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					log.Error("resultChan is closed")
 					return
 				}
-				// log.Debug("receive result: ", string(data))
+				//log.Debug("receive result: ", string(data))
 				//处理订阅或查询订阅列表请求返回结果
 				if strings.Contains(string(data), "event\":\"subscribe") || strings.Contains(string(data), "event\":\"unsubscribe") {
 					result := WsSubscribeResult[WsSubscribeStatus]{}
@@ -542,9 +558,7 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 				//现货K线处理
 				if strings.Contains(string(data), "spot.candlesticks") && strings.Contains(string(data), "event\":\"update") {
 					c, err := handleWsData[WsCandles](data)
-					//使用交易所规则，interval_symbol作为唯一key
-					key := c.Result.Interval
-					if sub, ok := ws.candleSubMap.Load(key); ok {
+					if sub, ok := ws.candleSubMap.Load(c.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
@@ -563,50 +577,48 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					cs := splitSlice(c, func(o WsFutureCandles) *WsCandles {
 						return o.convertToWsCandle()
 					})
-					for _, candle := range cs {
-						key := candle.Result.Interval
-						if sub, ok := ws.candleSubMap.Load(key); ok {
+					for _, c := range cs {
+						if sub, ok := ws.candleSubMap.Load(c.Result.HandleSubKey()); ok {
 							if err != nil {
 								sub.errChan <- err
 								continue
 							}
-							sub.resultChan <- *candle
+							sub.resultChan <- *c
 						}
 					}
 					continue
 				}
-				// 现货深度增量更新推送处理
+				// 现货OrderBook增量更新推送处理
 				if strings.Contains(string(data), "spot.order_book_update") && strings.Contains(string(data), "event\":\"update") {
 					ob, err := handleWsData[WsSpotOrderBookUpdate](data)
 					if err != nil {
 						log.Error(err)
 						continue
 					}
-					ob.Result.convertToWsOrderBook()
-					key := ob.Result.CurrencyPair
-					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+					ob2 := convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					if sub, ok := ws.orderBookSubMap.Load(ob2.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
 						}
-						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+						sub.resultChan <- *ob2
 					}
 					continue
 				}
-				// 现货深度全量更新推送处理
+				// 现货OrderBook全量更新推送处理
 				if strings.Contains(string(data), "spot.order_book") && strings.Contains(string(data), "event\":\"update") {
 					ob, err := handleWsData[WsSpotOrderBook](data)
 					if err != nil {
 						log.Error(err)
 						continue
 					}
-					key := ob.Result.CurrencyPair
-					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+					ob2 := convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					if sub, ok := ws.orderBookSubMap.Load(ob2.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
 						}
-						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+						sub.resultChan <- *ob2
 					}
 					continue
 				}
@@ -617,13 +629,13 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 						log.Error(err)
 						continue
 					}
-					key := ob.Result.Contract
-					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+					ob2 := convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					if sub, ok := ws.orderBookSubMap.Load(ob2.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
 						}
-						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+						sub.resultChan <- *ob2
 					}
 					continue
 				}
@@ -634,13 +646,13 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 						log.Error(err)
 						continue
 					}
-					key := ob.Result.Contract
-					if sub, ok := ws.orderBookSubMap.Load(key); ok {
+					ob2 := convertToWsData(ob, ob.Result.convertToWsOrderBook())
+					if sub, ok := ws.orderBookSubMap.Load(ob2.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
 						}
-						sub.resultChan <- *convertToWsData(ob, ob.Result.convertToWsOrderBook())
+						sub.resultChan <- *ob2
 					}
 					continue
 				}
@@ -651,13 +663,13 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 						log.Error(err)
 						continue
 					}
-					key := t.Result.CurrencyPair
-					if sub, ok := ws.tradeSubMap.Load(key); ok {
+					t2 := convertToWsData(t, t.Result.convertToWsTrade())
+					if sub, ok := ws.tradeSubMap.Load(t2.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
 						}
-						sub.resultChan <- *convertToWsData(t, t.Result.convertToWsTrade())
+						sub.resultChan <- *t2
 					}
 					continue
 				}
@@ -671,8 +683,8 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 					ts := splitSlice(t, func(o WsFuturesTrade) *WsTrade {
 						return o.convertToWsTrade()
 					})
-					key := (*t.Result)[0].Contract
-					if sub, ok := ws.tradeSubMap.Load(key); ok {
+
+					if sub, ok := ws.tradeSubMap.Load(ts[0].Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
 							continue
