@@ -35,11 +35,7 @@ func subscribeCandleCommon(ws *WsStreamClient, isSubscribe bool, symbols, interv
 			if len(payload) != 2 {
 				return fmt.Errorf("invalid payload: %v", payload)
 			}
-			keyData, err := json.Marshal(payload)
-			if err != nil {
-				return err
-			}
-			subKeys := []string{string(keyData)}
+			subKeys := []string{fmt.Sprintf("%s_%s", payload[0], payload[1])}
 
 			if isSubscribe {
 				thisSub, err := subscribe[WsSubscribeResult[WsCandles]](ws, channel, SUBSCRIBE, payload, subKeys, false)
@@ -152,6 +148,15 @@ func (ws *WsStreamClient) UnSubscribeTradeMultiple(symbols []string) error {
 // 深度通用订阅
 func subscribeOrderBookCommon(ws *WsStreamClient, isSubscribe, isUpdate bool, symbols []string, USpeed string, level string) (*MultipleSubscription[WsSubscribeResult[WsOrderBook]], error) {
 
+	if USpeed == "" {
+		USpeed = "100ms"
+	}
+
+	if level == "" {
+		level = "20"
+	}
+
+	payloadLen := 0
 	channel := ""
 	payloads := [][]string{}
 	switch ws.apiType {
@@ -162,12 +167,14 @@ func subscribeOrderBookCommon(ws *WsStreamClient, isSubscribe, isUpdate bool, sy
 				payload := []string{s, USpeed}
 				payloads = append(payloads, payload)
 			}
+			payloadLen = 2
 		} else {
 			channel = "spot.order_book"
 			for _, s := range symbols {
 				payload := []string{s, level, USpeed}
 				payloads = append(payloads, payload)
 			}
+			payloadLen = 3
 		}
 	case WS_FUTURES, WS_DELIVERY:
 		if isUpdate {
@@ -183,6 +190,7 @@ func subscribeOrderBookCommon(ws *WsStreamClient, isSubscribe, isUpdate bool, sy
 				payloads = append(payloads, payload)
 			}
 		}
+		payloadLen = 3
 	default:
 		return nil, fmt.Errorf("invalid apiType: %v", ws.apiType)
 	}
@@ -193,14 +201,10 @@ func subscribeOrderBookCommon(ws *WsStreamClient, isSubscribe, isUpdate bool, sy
 	for _, payload := range payloads {
 		payload := payload
 		errG.Go(func() error {
-			if isUpdate && len(payload) == 2 || !isUpdate && len(payload) == 3 {
+			if len(payload) != payloadLen {
 				return fmt.Errorf("invalid payload: %v", payload)
 			}
-			keyData, err := json.Marshal(payload)
-			if err != nil {
-				return err
-			}
-			subKeys := []string{string(keyData)}
+			subKeys := []string{payload[0]}
 			if isSubscribe {
 				thisSub, err := subscribe[WsSubscribeResult[WsOrderBook]](ws, channel, SUBSCRIBE, payload, subKeys, false)
 				if err != nil {
@@ -238,17 +242,17 @@ func subscribeOrderBookCommon(ws *WsStreamClient, isSubscribe, isUpdate bool, sy
 	}
 }
 
-func (ws *WsStreamClient) SubscribeOrderBookUpdate(symbol, USpeed string) (*MultipleSubscription[WsSubscribeResult[WsOrderBook]], error) {
-	return ws.SubscribeOrderBookUpdateMultiple([]string{symbol}, USpeed)
+func (ws *WsStreamClient) SubscribeOrderBookUpdate(symbol, USpeed, level string) (*MultipleSubscription[WsSubscribeResult[WsOrderBook]], error) {
+	return ws.SubscribeOrderBookUpdateMultiple([]string{symbol}, USpeed, level)
 }
-func (ws *WsStreamClient) UnSubscribeOrderBookUpdate(symbol, USpeed string) error {
-	return ws.UnSubscribeOrderBookUpdateMultiple([]string{symbol}, USpeed)
+func (ws *WsStreamClient) UnSubscribeOrderBookUpdate(symbol, USpeed, level string) error {
+	return ws.UnSubscribeOrderBookUpdateMultiple([]string{symbol}, USpeed, level)
 }
-func (ws *WsStreamClient) SubscribeOrderBookUpdateMultiple(symbols []string, USpeed string) (*MultipleSubscription[WsSubscribeResult[WsOrderBook]], error) {
-	return subscribeOrderBookCommon(ws, true, true, symbols, USpeed, "")
+func (ws *WsStreamClient) SubscribeOrderBookUpdateMultiple(symbols []string, USpeed, level string) (*MultipleSubscription[WsSubscribeResult[WsOrderBook]], error) {
+	return subscribeOrderBookCommon(ws, true, true, symbols, USpeed, level)
 }
-func (ws *WsStreamClient) UnSubscribeOrderBookUpdateMultiple(symbols []string, USpeed string) error {
-	_, err := subscribeOrderBookCommon(ws, false, true, symbols, USpeed, "")
+func (ws *WsStreamClient) UnSubscribeOrderBookUpdateMultiple(symbols []string, USpeed, level string) error {
+	_, err := subscribeOrderBookCommon(ws, false, true, symbols, USpeed, level)
 	return err
 }
 
