@@ -121,7 +121,7 @@ func (api *PrivateRestFuturesSettleDualModeAPI) Do() (*GateRestRes[PrivateRestFu
 }
 
 // gate PrivateRestFuturesSettleDualCompPositionsContract PrivateRest接口 POST 获取双仓模式下的持仓信息
-func (client *PrivateRestClient) NewPirvateRestFuturesSettleDualCompPositionsContract() *PrivateRestFuturesSettleDualCompPositionsContractAPI {
+func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualCompPositionsContract() *PrivateRestFuturesSettleDualCompPositionsContractAPI {
 	return &PrivateRestFuturesSettleDualCompPositionsContractAPI{
 		client: client,
 		req:    &PrivateRestFuturesSettleDualCompPositionsContractReq{},
