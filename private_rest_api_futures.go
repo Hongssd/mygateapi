@@ -112,12 +112,8 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualMode() *PrivateR
 }
 
 func (api *PrivateRestFuturesSettleDualModeAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualModeRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualMode])
-	reqBody, err := json.Marshal(api.req)
-	if err != nil {
-		return nil, err
-	}
-	return gateCallApiWithSecret[PrivateRestFuturesSettleDualModeRes](api.client.c, url, reqBody, POST)
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualMode])
+	return gateCallApiWithSecret[PrivateRestFuturesSettleDualModeRes](api.client.c, url, NIL_REQBODY, POST)
 }
 
 // gate PrivateRestFuturesSettleDualCompPositionsContract PrivateRest接口 POST 获取双仓模式下的持仓信息
