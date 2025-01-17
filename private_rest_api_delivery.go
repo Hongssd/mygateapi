@@ -172,12 +172,8 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettleOrdersOrderIdDelete
 }
 
 func (api *PrivateRestDeliverySettleOrdersOrderIdDeleteAPI) Do() (*GateRestRes[PrivateRestDeliverySettleOrdersOrderIdDeleteRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersOrderIdDelete])
-	reqBody, err := json.Marshal(api.req)
-	if err != nil {
-		return nil, err
-	}
-	return gateCallApiWithSecret[PrivateRestDeliverySettleOrdersOrderIdDeleteRes](api.client.c, url, reqBody, DELETE)
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettleOrdersOrderIdDelete])
+	return gateCallApiWithSecret[PrivateRestDeliverySettleOrdersOrderIdDeleteRes](api.client.c, url, NIL_REQBODY, DELETE)
 }
 
 // gate PrivateRestDeliverySettleMyTrades PrivateRest接口 GET 查询个人成交记录
