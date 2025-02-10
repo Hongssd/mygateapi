@@ -24,14 +24,14 @@ type GatePositionResCommon struct {
 	LastClosePnl      string `json:"last_close_pnl"`     // 最近一次平仓的盈亏
 	RealisedPoint     string `json:"realised_point"`     // 点卡已实现盈亏
 	HistoryPoint      string `json:"history_point"`      // 已平仓的点卡总盈亏
-	AdlRanking        int    `json:"adl_ranking"`        // 自动减仓排名，共1-5个等级，1 最高，5 最低，特殊情况 6 是没有持仓或在爆仓中
-	PendingOrders     int    `json:"pending_orders"`     // 当前未完成委托数量
-	CloseOrder        struct {
+	AdlRanking        int64  `json:"adl_ranking"`        // 自动减仓排名，共1-5个等级，1 最高，5 最低，特殊情况 6 是没有持仓或在爆仓中
+	PendingOrders     int64  `json:"pending_orders"`     // 当前未完成委托数量
+	CloseOrder        *struct {
 		Id    int64  `json:"id"`     // 委托ID
 		Price string `json:"price"`  // 委托价格
 		IsLiq bool   `json:"is_liq"` // 是否为强制平仓
 	} `json:"close_order"` // 当前平仓委托信息，如果没有平仓则为null
-	Mode               string `json:"mode"`                 // 持仓模式
+	Mode               string `json:"mode"`                 // 持仓模式。包括：single: 单向持仓模式 dual_long: 双向持仓模式下的做多仓位 dual_short: 双向持仓模式下的做空仓位
 	CrossLeverageLimit string `json:"cross_leverage_limit"` // 全仓模式下的杠杆倍数（即 leverage 为 0 时）
 	UpdateTime         int64  `json:"update_time"`          // 最后更新时间
 	UpdateId           int64  `json:"update_id"`            // 更新id，仓位每更新一次，数值会+1
@@ -81,11 +81,11 @@ type GateFuturesPriceTriggeredOrderResCommon struct {
 		IsClose      bool   `json:"is_close,omitempty"`       // 是否为平仓委托。对应请求中的close。
 	} `json:"initial"` // 初始订单信息
 	Trigger struct {
-		StrategyType int    `json:"strategy_type,omitempty"` // 触发策略
-		PriceType    int    `json:"price_type,omitempty"`    // 参考价格类型。 0 - 最新成交价，1 - 标记价格，2 - 指数价格
+		StrategyType int64  `json:"strategy_type,omitempty"` // 触发策略
+		PriceType    int64  `json:"price_type,omitempty"`    // 参考价格类型。 0 - 最新成交价，1 - 标记价格，2 - 指数价格
 		Price        string `json:"price,omitempty"`         // 价格触发时为价格，价差触发时为价差
-		Rule         int    `json:"rule,omitempty"`          // 价格条件类型
-		Expiration   int    `json:"expiration,omitempty"`    // 最长等待触发时间，超时则取消该订单，单位是秒 s
+		Rule         int64  `json:"rule,omitempty"`          // 价格条件类型
+		Expiration   int64  `json:"expiration,omitempty"`    // 最长等待触发时间，超时则取消该订单，单位是秒 s
 	} `json:"trigger"` // 触发条件
 	Id         int64   `json:"id,omitempty"`          // 自动订单 ID
 	User       int64   `json:"user,omitempty"`        // 用户 ID

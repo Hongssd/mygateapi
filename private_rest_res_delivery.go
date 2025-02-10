@@ -21,7 +21,7 @@ type PrivateRestDeliverySettleAccountsRes struct {
 	CrossAvailable         string `json:"cross_available"`          // 全仓可用额度，适用于新经典账户保证金模式
 	IsolatedPositionMargin string `json:"isolated_position_margin"` // 逐仓仓位保证金，适用于新经典账户保证金模式
 	EnableNewDualMode      bool   `json:"enable_new_dual_mode"`     // 是否开启新的双向持仓模式
-	MarginMode             int    `json:"margin_mode"`              // 保证金模式，0-经典保证金模式，1-跨币种保证金模式，2-组合保证金模式
+	MarginMode             int64  `json:"margin_mode"`              // 保证金模式，0-经典保证金模式，1-跨币种保证金模式，2-组合保证金模式
 	History                struct {
 		Dnw         string `json:"dnw"`          // 累计转入转出
 		Pnl         string `json:"pnl"`          // 累计交易盈亏
