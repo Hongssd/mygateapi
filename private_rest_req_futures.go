@@ -622,3 +622,52 @@ type PrivateRestFuturesSettleMyTradesAPI struct {
 	client *PrivateRestClient
 	req    *PrivateRestFuturesSettleMyTradesReq
 }
+
+type PrivateRestFuturesSettleOrdersTimeRangeReq struct {
+	Settle   *string `json:"settle"`   // settle	URL	string	是	结算货币
+	Contract *string `json:"contract"` // contract	请求参数	string	否	合约标识，如果指定则只返回该合约相关数据
+	From     *int64  `json:"from"`     // from	请求参数	integer(int64)	否	开始时间，Unix 时间戳
+	To       *int64  `json:"to"`       // to	请求参数	integer(int64)	否	终止时间戳
+	Limit    *int    `json:"limit"`    // limit	请求参数	integer	否	列表返回的最大数量
+	Offset   *int    `json:"offset"`   // offset	请求参数	integer	否	列表返回的偏移量，从 0 开始
+}
+type PrivateRestFuturesSettleOrdersTimeRangeAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestFuturesSettleOrdersTimeRangeReq
+}
+
+// settle	URL	string	是	结算货币 例如：usdt（需小写，大写会返回resource not found）
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) Settle(settle string) *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	api.req.Settle = GetPointer(settle)
+	return api
+}
+
+// contract	请求参数	string	否	合约标识，如果指定则只返回该合约相关数据
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) Contract(contract string) *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	api.req.Contract = GetPointer(contract)
+	return api
+}
+
+// from	请求参数	integer(int64)	否	起始时间戳
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) From(from int64) *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	api.req.From = GetPointer(from)
+	return api
+}
+
+// to	请求参数	integer(int64)	否	终止时间戳
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) To(to int64) *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	api.req.To = GetPointer(to)
+	return api
+}
+
+// limit	请求参数	integer	否	列表返回的最大数量
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) Limit(limit int) *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// offset	请求参数	integer	否	列表返回的偏移量，从 0 开始
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) Offset(offset int) *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	api.req.Offset = GetPointer(offset)
+	return api
+}

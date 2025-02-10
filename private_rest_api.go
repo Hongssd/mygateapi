@@ -50,6 +50,7 @@ const (
 	// Futures 订单相关
 	PrivateRestFuturesSettleOrdersPost          //合约交易下单
 	PrivateRestFuturesSettleOrdersGet           //查询合约订单列表
+	PrivateRestFuturesSettleOrdersTimeRange     //查询合约订单列表(时间区间)
 	PrivateRestFuturesSettleOrdersOrderIdGet    //查询单个订单详情
 	PrivateRestFuturesSettleOrdersOrderIdDelete //撤销单个订单
 	PrivateRestFuturesSettleOrdersOrderIdPut    //修改单个订单
@@ -138,6 +139,7 @@ var PrivateRestAPIMap = map[PrivateRestAPI]string{
 	// Futures 订单相关
 	PrivateRestFuturesSettleOrdersPost:          "/api/v4/futures/{settle}/orders",            //POST 合约交易下单
 	PrivateRestFuturesSettleOrdersGet:           "/api/v4/futures/{settle}/orders",            //GET 查询合约订单列表
+	PrivateRestFuturesSettleOrdersTimeRange:     "/api/v4/futures/{settle}/orders_timerange",  //GET 查询合约订单列表(时间区间)
 	PrivateRestFuturesSettleOrdersOrderIdGet:    "/api/v4/futures/{settle}/orders/{order_id}", //GET 查询单个订单详情
 	PrivateRestFuturesSettleOrdersOrderIdDelete: "/api/v4/futures/{settle}/orders/{order_id}", //DELETE 撤销单个订单
 	PrivateRestFuturesSettleOrdersOrderIdPut:    "/api/v4/futures/{settle}/orders/{order_id}", //PUT 修改单个订单

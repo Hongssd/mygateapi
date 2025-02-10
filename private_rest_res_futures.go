@@ -117,3 +117,5 @@ type PrivateRestFuturesSettleMyTradesResRow struct {
 	PointFee   string  `json:"point_fee"`   //成交点卡手续费
 }
 type PrivateRestFuturesSettleMyTradesRes []PrivateRestFuturesSettleMyTradesResRow
+
+type PrivateRestFuturesSettleOrdersTimeRangeRes []GateFuturesOrderResCommon
