@@ -207,6 +207,19 @@ func (api *PrivateRestFuturesSettleOrdersGetAPI) Do() (*GateRestRes[PrivateRestF
 	return gateCallApiWithSecret[PrivateRestFuturesSettleOrdersGetRes](api.client.c, url, NIL_REQBODY, GET)
 }
 
+// gate PrivateRestFuturesSettleOrdersTimeRange PrivateRest接口 GET 查询合约订单列表(时间区间)
+func (client *PrivateRestClient) NewPrivateRestFuturesSettleOrdersTimeRange() *PrivateRestFuturesSettleOrdersTimeRangeAPI {
+	return &PrivateRestFuturesSettleOrdersTimeRangeAPI{
+		client: client,
+		req:    &PrivateRestFuturesSettleOrdersTimeRangeReq{},
+	}
+}
+
+func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) Do() (*GateRestRes[PrivateRestFuturesSettleOrdersTimeRangeRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleOrdersTimeRange])
+	return gateCallApiWithSecret[PrivateRestFuturesSettleOrdersTimeRangeRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
 // gate PrivateRestFuturesSettleOrdersOrderIdGet PrivateRest接口 GET 查询单个订单详情
 func (client *PrivateRestClient) NewPrivateRestFuturesSettleOrdersOrderIdGet() *PrivateRestFuturesSettleOrdersOrderIdGetAPI {
 	return &PrivateRestFuturesSettleOrdersOrderIdGetAPI{

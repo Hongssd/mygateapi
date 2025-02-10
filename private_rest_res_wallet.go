@@ -23,7 +23,7 @@ type PrivateRestWalletTotalBalanceRes struct {
 }
 
 type PrivateRestWalletFeeRes struct {
-	UserID           int    `json:"user_id"`            //用户 ID
+	UserID           int64  `json:"user_id"`            //用户 ID
 	TakerFee         string `json:"taker_fee"`          //taker 费率
 	MakerFee         string `json:"maker_fee"`          //maker 费率
 	GtDiscount       bool   `json:"gt_discount"`        //是否开启 GT 抵扣折扣
@@ -35,7 +35,7 @@ type PrivateRestWalletFeeRes struct {
 	FuturesMakerFee  string `json:"futures_maker_fee"`  //合约 maker 费率
 	DeliveryTakerFee string `json:"delivery_taker_fee"` //交割合约 taker 费率
 	DeliveryMakerFee string `json:"delivery_maker_fee"` //交割合约 maker 费率
-	DebitFee         int    `json:"debit_fee"`          //费率抵扣类型 , 1 - GT抵扣 , 2 - 点卡抵扣 , 3 - VIP费率
+	DebitFee         int64  `json:"debit_fee"`          //费率抵扣类型 , 1 - GT抵扣 , 2 - 点卡抵扣 , 3 - VIP费率
 }
 
 type PrivateRestSpotMyTradesResRow struct {
