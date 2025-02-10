@@ -1,8 +1,9 @@
 package mygateapi
 
 import (
-	"github.com/shopspring/decimal"
 	"strconv"
+
+	"github.com/shopspring/decimal"
 )
 
 type WsCandles struct {
@@ -425,47 +426,48 @@ type WsFuturesTicker struct {
 }
 
 type WsFuturesOrder struct {
-	CreateTime   int    `json:"create_time"`    //订单创建时间（已弃用）
-	CreateTimeMs int    `json:"create_time_ms"` //订单创建时间戳（以毫秒为单位）
+	CreateTime   int64  `json:"create_time"`    //订单创建时间（已弃用）
+	CreateTimeMs int64  `json:"create_time_ms"` //订单创建时间戳（以毫秒为单位）
 	FillPrice    string `json:"fill_price"`     //订单成交价格
-	FinishAs     string `json:"finish_as"`      //订单是如何完成的。 filled：全部成交 cancelled：手动取消 liquidated：因清算而取消 ioc：生效时间为 IOC，立即完成 auto_deleveraging：ADL 完成 reduce_only：因减仓设置而增仓而取消 position_close：因平仓而取消 stp：订单发生自成交限制而被撤销 _new：新建 _update：成交或部分成交或更新订单 reduce_out: 只减仓被排除的不容易成交的挂单
-	Iceberg      int    `json:"iceberg"`        //冰山下单显示的数量，不指定或传 0 都默认为普通下单。目前不支持全部冰山。
-	Id           int    `json:"id"`             //订单 ID
-	IsClose      bool   `json:"is_close"`       //该订单是否为 close position
-	IsLiq        bool   `json:"is_liq"`         //该订单是否为 liquidation
+	FinishAs     string `json:"finish_as"`      //订单完成方式: filled-全部成交, cancelled-手动取消, liquidated-清算取消, ioc-立即完成, auto_deleveraging-ADL完成, reduce_only-减仓取消, position_close-平仓取消, stp-自成交限制撤销
+	Iceberg      int    `json:"iceberg"`        //冰山下单显示数量（0表示普通订单）
+	Id           int64  `json:"id"`             //订单 ID
+	IsClose      bool   `json:"is_close"`       //是否为 close position
+	IsLiq        bool   `json:"is_liq"`         //是否为 liquidation 订单
 	Left         int    `json:"left"`           //剩余可交易数量
 	Mkfr         string `json:"mkfr"`           //Maker 费用
-	IsReduceOnly bool   `json:"is_reduce_only"` //该订单是否为 reduce-only
-	Status       string `json:"status"`         //订单状态 open: 等待交易 finished: 完成
-	Tkfr         string `json:"tkfr"`           //taker 费用
-	Price        string `json:"price"`          //订单价格。 0 表示市价订单，tif 设置为 ioc
-	Refu         int    `json:"refu"`           //推荐用户 ID
+	IsReduceOnly bool   `json:"is_reduce_only"` //是否为 reduce-only 订单
+	Status       string `json:"status"`         //订单状态: open-等待交易, finished-完成
+	Tkfr         string `json:"tkfr"`           //Taker 费用
+	Price        string `json:"price"`          //订单价格（0表示市价单）
+	Refu         int64  `json:"refu"`           //推荐用户 ID
 	Refr         string `json:"refr"`           //推荐用户费用
-	Size         int    `json:"size"`           //订单大小。指定正数进行出价，指定负数进行询问
-	Text         string `json:"text"`           //用户定义的信息
-	Tif          string `json:"tif"`            //有效时间 gtc：GoodTillCancelled ioc：ImmediateOrCancelled，仅接受者 poc：PendingOrCancelled，只进行后订单，始终享受挂单费用 fok： FillOrKill，完全填充或不填充 type=market 时仅支持 ioc 和 fok
-	FinishTime   int    `json:"finish_time"`    //订单更新 unix 时间戳（以秒为单位）
-	FinishTimeMs int    `json:"finish_time_ms"` //订单更新 unix 时间戳（以毫秒为单位）
+	Size         int64  `json:"size"`           //订单大小（正数表示买单，负数表示卖单）
+	Text         string `json:"text"`           //用户自定义信息
+	Tif          string `json:"tif"`            //有效时间: gtc, ioc, poc, fok
+	FinishTime   int64  `json:"finish_time"`    //订单更新时间戳（秒）
+	FinishTimeMs int64  `json:"finish_time_ms"` //订单更新时间戳（毫秒）
 	User         string `json:"user"`           //用户 ID
 	Contract     string `json:"contract"`       //合约名称
-	StpId        string `json:"stp_id"`         //同一 stp_id 组内的用户之间的订单不允许自交易 1.如果匹配的两个订单的 stp_id 非零且相等，则不会被执行。而是根据 taker 的 stp_act 执行相应的策略。 2.对于未设置 STP 组的订单，stp_id 默认返回 0
-	StpAct       string `json:"stp_act"`        //自我交易预防行动。用户可以通过该字段设置自我交易防范策略 1.用户加入 STP Group 后，可以通过 stp_act 来限制用户的自我交易防范策略。如果不传 stp_act，则默认为 cn 策略。 2.当用户没有加入 STP 组时，传递 stp_act 参数时会返回错误。 3.如果用户下单时没有使用'stp_act'，'stp_act'将返回'-' cn: 取消最新订单，取消新订单并保留旧订单 co: 取消最旧订单，取消旧订单并保留新订单 cb：取消两者，新旧订单都会被取消
-	AmendText    string `json:"amend_text"`     //用户修改订单时备注的自定义数据
+	StpId        string `json:"stp_id"`         //STP组ID（0表示未设置）
+	StpAct       string `json:"stp_act"`        //自交易预防策略: cn-取消新订单, co-取消旧订单, cb-取消双方
+	AmendText    string `json:"amend_text"`     //订单修改时的自定义备注
 }
 
 type WsFuturesPosition struct {
 	Contract        string  `json:"contract"`         //合约名称
-	EntryPrice      string  `json:"entry_price"`      //开仓价格
-	HistoryPnl      string  `json:"history_pnl"`      //已平仓的仓位总盈亏
-	HistoryPoint    string  `json:"history_point"`    //已平仓的点卡总盈亏
-	LastClosePnl    string  `json:"last_close_pnl"`   //最近一次平仓的盈亏
+	EntryPrice      float64 `json:"entry_price"`      //开仓价格
+	HistoryPnl      float64 `json:"history_pnl"`      //已平仓的仓位总盈亏
+	HistoryPoint    float64 `json:"history_point"`    //已平仓的点卡总盈亏
+	LastClosePnl    float64 `json:"last_close_pnl"`   //最近一次平仓的盈亏
 	Leverage        int     `json:"leverage"`         //杠杆倍数，0代表全仓，正数代表逐仓
 	LeverageMax     int     `json:"leverage_max"`     //当前风险限额下，允许的最大杠杆倍数
 	LiqPrice        float64 `json:"liq_price"`        //爆仓价格
 	MaintenanceRate float64 `json:"maintenance_rate"` //当前风险限额下，维持保证金比例
-	Margin          string  `json:"margin"`           //保证金
-	RealisedPnl     string  `json:"realised_pnl"`     //已实现盈亏
-	RealisedPoint   string  `json:"realised_point"`   //点卡已实现盈亏
+	Margin          float64 `json:"margin"`           //保证金
+	Mode            string  `json:"mode"`             //模式
+	RealisedPnl     float64 `json:"realised_pnl"`     //已实现盈亏
+	RealisedPoint   float64 `json:"realised_point"`   //点卡已实现盈亏
 	RiskLimit       int     `json:"risk_limit"`       //风险限额
 	Size            int     `json:"size"`             //合约 size
 	Time            int     `json:"time"`             //更新 unix 时间戳
@@ -475,12 +477,12 @@ type WsFuturesPosition struct {
 }
 
 type WsFuturesBalance struct {
-	Balance  string `json:"balance"`  //余额最终数量
-	Change   string `json:"change"`   //余额变化数量
-	Text     string `json:"text"`     //附带信息
-	Time     int    `json:"time"`     //时间
-	TimeMs   int    `json:"time_ms"`  //时间（以毫秒为单位）
-	Type     string `json:"type"`     //类型
-	User     string `json:"user"`     //用户 ID
-	Currency string `json:"currency"` //币种
+	Balance  float64 `json:"balance"`  //余额最终数量
+	Change   float64 `json:"change"`   //余额变化数量
+	Text     string  `json:"text"`     //附带信息
+	Time     int     `json:"time"`     //时间
+	TimeMs   int64   `json:"time_ms"`  //时间（以毫秒为单位）
+	Type     string  `json:"type"`     //类型
+	User     string  `json:"user"`     //用户 ID
+	Currency string  `json:"currency"` //币种
 }

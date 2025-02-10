@@ -1,8 +1,9 @@
 package mygateapi
 
 import (
-	"golang.org/x/sync/errgroup"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // !all订阅全部订单推送
@@ -156,7 +157,7 @@ func (ws *FuturesWsStreamClient) UnSubscribeOrderMultiple(userId string, contrac
 }
 
 // 订阅现货余额频道
-func (ws *FuturesWsStreamClient) SubscribeBalance(userId string) (*Subscription[WsSubscribeResult[[]WsFuturesBalance]], error) {
+func (ws *FuturesWsStreamClient) SubscribeBalance(userId string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesBalance]], error) {
 	channel := "futures.balances"
 	payload := []string{userId}
 	subKey := []string{userId}
@@ -167,8 +168,11 @@ func (ws *FuturesWsStreamClient) SubscribeBalance(userId string) (*Subscription[
 	}
 
 	ws.futuresBalanceSubMap.Store(subKey[0], thisSub)
-
-	return thisSub, nil
+	subscription, err := mergeSubscription([]*Subscription[WsSubscribeResult[[]WsFuturesBalance]]{thisSub}...)
+	if err != nil {
+		return nil, err
+	}
+	return subscription, nil
 }
 func (ws *FuturesWsStreamClient) UnSubscribeBalance(userId string) error {
 	channel := "futures.balances"
