@@ -13,7 +13,7 @@ type PrivateRestSpotAccountsResRow struct {
 	Currency  string `json:"currency"`  //string 币种信息
 	Available string `json:"available"` //string 可用金额
 	Locked    string `json:"locked"`    //string 冻结金额
-	UpdateID  int    `json:"update_id"` //integer 版本号
+	UpdateID  int64  `json:"update_id"` //integer 版本号
 }
 
 type PrivateRestSpotAccountsRes []PrivateRestSpotAccountsResRow
@@ -133,8 +133,8 @@ type PrivateRestSpotOrdersPostRes struct {
 	AmendText          string `json:"amend_text"`           //string false 只读 用户修改订单时备注的信息
 	CreateTime         string `json:"create_time"`          //string false 只读 订单创建时间
 	UpdateTime         string `json:"update_time"`          //string false 只读 订单最新修改时间
-	CreateTimeMs       int    `json:"create_time_ms"`       //integer(int64) false 只读 订单创建时间，毫秒精度
-	UpdateTimeMs       int    `json:"update_time_ms"`       //integer(int64) false 只读 订单最近修改时间，毫秒精度
+	CreateTimeMs       int64  `json:"create_time_ms"`       //integer(int64) false 只读 订单创建时间，毫秒精度
+	UpdateTimeMs       int64  `json:"update_time_ms"`       //integer(int64) false 只读 订单最近修改时间，毫秒精度
 	Status             string `json:"status"`               //string false 只读 订单状态 open: 等待处理 closed: 全部成交 cancelled: 订单撤销
 	CurrencyPair       string `json:"currency_pair"`        //string true none 交易货币对
 	Type               string `json:"type"`                 //string false none 订单类型
@@ -160,7 +160,7 @@ type PrivateRestSpotOrdersPostRes struct {
 	GtDiscount         bool   `json:"gt_discount"`          //boolean false 只读 是否开启GT抵扣
 	RebatedFee         string `json:"rebated_fee"`          //string false 只读 返还的手续费
 	RebatedFeeCurrency string `json:"rebated_fee_currency"` //string false 只读 返还手续费计价单位
-	StpID              int    `json:"stp_id"`               //integer false 只读 订单所属的STP用户组id 1、如果撮合时两个订单的 stp_id 非 0 且相等，则不成交，而是根据 taker 的 stp_act 执行相应策略。 2、没有设置STP用户组成交的订单，stp_id 默认返回 0
+	StpID              int64  `json:"stp_id"`               //integer false 只读 订单所属的STP用户组id 1、如果撮合时两个订单的 stp_id 非 0 且相等，则不成交，而是根据 taker 的 stp_act 执行相应策略。 2、没有设置STP用户组成交的订单，stp_id 默认返回 0
 	StpAct             string `json:"stp_act"`              //string false none Self-Trading Prevention Action cn-Cancel newest 取消新订单，保留老订单；co-Cancel oldest 取消⽼订单，保留新订单；cb-Cancel both 新旧订单都取消
 	FinishAs           string `json:"finish_as"`            //string false 只读 订单结束方式 open-等待处理 filled-全部成交 cancelled-订单撤销 liquidate_cancelled-爆仓撤销 small-订单数量太小 depth_not_enough-深度不足导致撤单 trader_not_enough-对手方不足导致撤单 ioc-未立即成交，因为 tif 设置为 ioc poc-未满足挂单策略，因为 tif 设置为 poc fok-未立即完全成交，因为 tif 设置为 fok stp-订单发生自成交限制而被撤销 unknown-未知
 	ActionMode         string `json:"action_mode"`          //string false 只写 处理模式 ACK: 异步模式，只返回订单关键字段 RESULT: 无清算信息 FULL: 完整模式
@@ -180,7 +180,7 @@ type PrivateRestSpotAccountBookRes []PrivateRestSpotAccountBookResRow
 
 type PrivateRestSpotOpenOrdersResRow struct {
 	CurrencyPair string                         `json:"currency_pair"` //string 交易对
-	Total        int                            `json:"total"`         //integer 该交易对当前页面的挂单总数
+	Total        int64                          `json:"total"`         //integer 该交易对当前页面的挂单总数
 	Orders       []PrivateRestSpotOrdersPostRes `json:"orders"`        //array None object 现货单详情
 }
 
@@ -283,8 +283,8 @@ type PrivateRestSpotOrdersCommon struct {
 	Succeeded          bool   `json:"succeeded"`            //boolean 只读 请求执行结果
 	CreateTime         string `json:"create_time"`          //string 只读 订单创建时间
 	UpdateTime         string `json:"update_time"`          //string 只读 订单最新修改时间
-	CreateTimeMs       int    `json:"create_time_ms"`       //integer(int64) 只读 订单创建时间，毫秒精度
-	UpdateTimeMs       int    `json:"update_time_ms"`       //integer(int64) 只读 订单最近修改时间，毫秒精度
+	CreateTimeMs       int64  `json:"create_time_ms"`       //integer(int64) 只读 订单创建时间，毫秒精度
+	UpdateTimeMs       int64  `json:"update_time_ms"`       //integer(int64) 只读 订单最近修改时间，毫秒精度
 	Status             string `json:"status"`               //string 只读 订单状态 open: 等待处理 closed: 全部成交 cancelled: 订单撤销
 	CurrencyPair       string `json:"currency_pair"`        //string none 交易货币对
 	Type               string `json:"type"`                 //string none 订单类型
@@ -310,7 +310,7 @@ type PrivateRestSpotOrdersCommon struct {
 	GtDiscount         bool   `json:"gt_discount"`          //boolean 只读 是否开启GT抵扣
 	RebatedFee         string `json:"rebated_fee"`          //string 只读 返还的手续费
 	RebatedFeeCurrency string `json:"rebated_fee_currency"` //string 只读 返还手续费计价单位
-	StpID              int    `json:"stp_id"`               //integer 只读 订单所属的STP用户组id 1、如果撮合时两个订单的 stp_id 非 0 且相等，则不成交，而是根据 taker 的 stp_act 执行相应策略。 2、没有设置STP用户组成交的订单，stp_id 默认返回 0
+	StpID              int64  `json:"stp_id"`               //integer 只读 订单所属的STP用户组id 1、如果撮合时两个订单的 stp_id 非 0 且相等，则不成交，而是根据 taker 的 stp_act 执行相应策略。 2、没有设置STP用户组成交的订单，stp_id 默认返回 0
 	StpAct             string `json:"stp_act"`              //string 只读 Self-Trading Prevention Action,用户可以用该字段设置自定义限制自成交策略。 1. 用户在设置加入STP用户组后，可以通过传递 stp_act 来限制用户发生自成交的策略，没有传递 stp_act 默认按照 cn 的策略。 2. 用户在没有设置加入STP用户组时，传递 stp_act 参数会报错。 3. 用户没有使用 stp_act 发生成交的订单，stp_act 返回 -。 - cn: Cancel newest,取消新订单，保留老订单；co: Cancel oldest,取消⽼订单，保留新订单；cb: Cancel both,新旧订单都取消
 	FinishAs           string `json:"finish_as"`            //string 只读 订单结束方式 open-等待处理 filled-全部成交 cancelled-订单撤销 liquidate_cancelled-爆仓撤销 small-订单数量太小 depth_not_enough-深度不足导致撤单 trader_not_enough-对手方不足导致撤单 ioc-未立即成交，因为 tif 设置为 ioc poc-未满足挂单策略，因为 tif 设置为 poc fok-未立即完全成交，因为 tif 设置为 fok stp-订单发生自成交限制而被撤销 unknown-未知
 }
