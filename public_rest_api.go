@@ -18,6 +18,10 @@ const (
 	// Margin公共接口
 	PublicRestMarginCrossCurrencies //全仓杠杆支持的币种列表
 
+	// MarginUni公共接口
+	PublicRestMarginUniCurrencyPairs             //查询借贷市场列表
+	PublicRestMarginUniCurrencyPairsCurrencyPair //查询借贷市场详情
+
 	// Futures公共接口
 	PublicRestFuturesSettleContracts         //查询所有的合约信息
 	PublicRestFuturesSettleContractsContract //查询单个合约信息
@@ -48,6 +52,10 @@ var PublicRestAPIMap = map[PublicRestAPI]string{
 
 	// Margin公共接口
 	PublicRestMarginCrossCurrencies: "/api/v4/margin/cross/currencies", //GET 全仓杠杆支持的币种列表
+
+	// MariginUni公共接口
+	PublicRestMarginUniCurrencyPairs:             "/api/v4/margin/uni/currency_pairs",                 //GET 查询借贷市场列表
+	PublicRestMarginUniCurrencyPairsCurrencyPair: "/api/v4/margin/uni/currency_pairs/{currency_pair}", //GET 查询借贷市场详情
 
 	// Futures公共接口
 	PublicRestFuturesSettleContracts:         "/api/v4/futures/{settle}/contracts",            //GET 查询所有的合约信息

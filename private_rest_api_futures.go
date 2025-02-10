@@ -78,12 +78,8 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettlePositionsContractLev
 }
 
 func (api *PrivateRestFuturesSettlePositionsContractLeverageAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePositionsContractLeverageRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractLeverage])
-	reqBody, err := json.Marshal(api.req)
-	if err != nil {
-		return nil, err
-	}
-	return gateCallApiWithSecret[PrivateRestFuturesSettlePositionsContractLeverageRes](api.client.c, url, reqBody, POST)
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePositionsContractLeverage])
+	return gateCallApiWithSecret[PrivateRestFuturesSettlePositionsContractLeverageRes](api.client.c, url, NIL_REQBODY, POST)
 }
 
 // gate PrivateRestFuturesSettlePositionsContractRiskLimit PrivateRest接口 POST 更新仓位风险限额
@@ -112,16 +108,12 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualMode() *PrivateR
 }
 
 func (api *PrivateRestFuturesSettleDualModeAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualModeRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualMode])
-	reqBody, err := json.Marshal(api.req)
-	if err != nil {
-		return nil, err
-	}
-	return gateCallApiWithSecret[PrivateRestFuturesSettleDualModeRes](api.client.c, url, reqBody, POST)
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualMode])
+	return gateCallApiWithSecret[PrivateRestFuturesSettleDualModeRes](api.client.c, url, NIL_REQBODY, POST)
 }
 
 // gate PrivateRestFuturesSettleDualCompPositionsContract PrivateRest接口 POST 获取双仓模式下的持仓信息
-func (client *PrivateRestClient) NewPirvateRestFuturesSettleDualCompPositionsContract() *PrivateRestFuturesSettleDualCompPositionsContractAPI {
+func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualCompPositionsContract() *PrivateRestFuturesSettleDualCompPositionsContractAPI {
 	return &PrivateRestFuturesSettleDualCompPositionsContractAPI{
 		client: client,
 		req:    &PrivateRestFuturesSettleDualCompPositionsContractReq{},
@@ -163,12 +155,8 @@ func (client *PrivateRestClient) NewPrivateRestFuturesSettleDualCompPositionsCon
 }
 
 func (api *PrivateRestFuturesSettleDualCompPositionsContractLeverageAPI) Do() (*GateRestRes[PrivateRestFuturesSettleDualCompPositionsContractLeverageRes], error) {
-	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractLeverage])
-	reqBody, err := json.Marshal(api.req)
-	if err != nil {
-		return nil, err
-	}
-	return gateCallApiWithSecret[PrivateRestFuturesSettleDualCompPositionsContractLeverageRes](api.client.c, url, reqBody, POST)
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleDualCompPositionsContractLeverage])
+	return gateCallApiWithSecret[PrivateRestFuturesSettleDualCompPositionsContractLeverageRes](api.client.c, url, NIL_REQBODY, POST)
 }
 
 // gate PrivateRestFuturesSettleDualCompPositionsContractRiskLimit PrivateRest接口 POST 更新双仓模式下的持仓风险限额
