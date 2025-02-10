@@ -38,42 +38,42 @@ type PrivateRestUnifiedRiskUnitsAPI struct {
 }
 
 type PrivateRestUnifiedUnifiedModePutReq struct {
-	Mode     string `json:"mode"` //String	是	统一账户模式
-	Settings struct {
-		UsdtFutures bool `json:"usdt_futures"` //Boolean	否	USDT合约开关。不传时,取当前开关值,首次开通不传时默认为关
-		SpotHedge   bool `json:"spot_hedge"`   //Boolean	否	现货对冲开关。不传时,取当前开关值,首次开通不传时默认为关
-		UseFunding  bool `json:"use_funding"`  //Boolean	否	当mode为组合保证金模式时,是否将余币宝理财资金作为保证金
-		Options     bool `json:"options"`      //Boolean	否	期权开关。不传时,取当前开关值,首次开通不传时默认为关
+	Mode     *string `json:"mode"` //String	是	统一账户模式
+	Settings *struct {
+		UsdtFutures *bool `json:"usdt_futures"` //Boolean	否	USDT合约开关。不传时,取当前开关值,首次开通不传时默认为关
+		SpotHedge   *bool `json:"spot_hedge"`   //Boolean	否	现货对冲开关。不传时,取当前开关值,首次开通不传时默认为关
+		UseFunding  *bool `json:"use_funding"`  //Boolean	否	当mode为组合保证金模式时,是否将余币宝理财资金作为保证金
+		Options     *bool `json:"options"`      //Boolean	否	期权开关。不传时,取当前开关值,首次开通不传时默认为关
 	} `json:"settings"` //Object	否
 }
 
 // mode	String	是	统一账户模式
 func (api *PrivateRestUnifiedUnifiedModePutAPI) Mode(mode string) *PrivateRestUnifiedUnifiedModePutAPI {
-	api.req.Mode = mode
+	api.req.Mode = GetPointer(mode)
 	return api
 }
 
 // usdtFutures	Boolean	否	USDT合约开关。不传时,取当前开关值,首次开通不传时默认为关
 func (api *PrivateRestUnifiedUnifiedModePutAPI) UsdtFutures(usdtFutures bool) *PrivateRestUnifiedUnifiedModePutAPI {
-	api.req.Settings.UsdtFutures = usdtFutures
+	api.req.Settings.UsdtFutures = GetPointer(usdtFutures)
 	return api
 }
 
 // spotHedge	Boolean	否	现货对冲开关。不传时,取当前开关值,首次开通不传时默认为关
 func (api *PrivateRestUnifiedUnifiedModePutAPI) SpotHedge(spotHedge bool) *PrivateRestUnifiedUnifiedModePutAPI {
-	api.req.Settings.SpotHedge = spotHedge
+	api.req.Settings.SpotHedge = GetPointer(spotHedge)
 	return api
 }
 
 // useFunding	Boolean	否	当mode为组合保证金模式时,是否将余币宝理财资金作为保证金
 func (api *PrivateRestUnifiedUnifiedModePutAPI) UseFunding(useFunding bool) *PrivateRestUnifiedUnifiedModePutAPI {
-	api.req.Settings.UseFunding = useFunding
+	api.req.Settings.UseFunding = GetPointer(useFunding)
 	return api
 }
 
 // options	Boolean	否	期权开关。不传时,取当前开关值,首次开通不传时默认为关
 func (api *PrivateRestUnifiedUnifiedModePutAPI) Options(options bool) *PrivateRestUnifiedUnifiedModePutAPI {
-	api.req.Settings.Options = options
+	api.req.Settings.Options = GetPointer(options)
 	return api
 }
 
