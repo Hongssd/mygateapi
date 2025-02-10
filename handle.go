@@ -40,10 +40,12 @@ func handlerCommonRest[T any](data []byte, respHeaderMap map[string]string, stat
 	if is2xx(res.StatusCode) {
 		//请求成功，捕获结构体
 		var d T
-		err := json.Unmarshal(data, &d)
-		if err != nil {
-			log.Error("rest返回值获取失败", err)
-			return res, err
+		if len(data) != 0 {
+			err := json.Unmarshal(data, &d)
+			if err != nil {
+				log.Error("rest返回值获取失败", err)
+				return res, err
+			}
 		}
 		res.Data = d
 	} else {
