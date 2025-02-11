@@ -118,4 +118,32 @@ type PrivateRestFuturesSettleMyTradesResRow struct {
 }
 type PrivateRestFuturesSettleMyTradesRes []PrivateRestFuturesSettleMyTradesResRow
 
-type PrivateRestFuturesSettleOrdersTimeRangeRes []GateFuturesOrderResCommon
+type PrivateRestFuturesSettleOrdersTimeRangeRes []struct {
+	Id           int64   `json:"id"`             // 合约订单 ID
+	User         int64   `json:"user"`           // 用户 ID
+	CreateTime   float64 `json:"create_time"`    // 订单创建时间
+	FinishTime   string  `json:"finish_time"`    // 订单结束时间，未结束订单无此字段返回
+	FinishAs     string  `json:"finish_as"`      // 结束方式，包括：filled: 完全成交 cancelled: 用户撤销 liquidated: 强制平仓撤销 ioc: 未立即完全成交，因为tif设置为ioc auto_deleveraged: 自动减仓撤销 reduce_only: 增持仓位撤销，因为设置reduce_only或平仓 position_closed: 因为仓位平掉了，所以挂单被撤掉 reduce_out: 只减仓被排除的不容易成交的挂单 stp: 订单发生自成交限制而被撤销
+	Status       string  `json:"status"`         // 订单状态。open: 等待处理 finished: 已结束的订单
+	Contract     string  `json:"contract"`       // 合约标识
+	Size         int64   `json:"size"`           // 交易数量，正数为买入，负数为卖出。平仓委托则设置为0。
+	Iceberg      int64   `json:"iceberg"`        // 冰山委托显示数量。0为完全不隐藏。注意，隐藏部分成交按照taker收取手续费。
+	Price        string  `json:"price"`          // 委托价。价格为0并且tif为ioc，代表市价委托。
+	Close        bool    `json:"close"`          // 设置为 true 的时候执行平仓操作，并且size应设置为0
+	IsClose      bool    `json:"is_close"`       // 是否为平仓委托。对应请求中的close。
+	ReduceOnly   bool    `json:"reduce_only"`    // 设置为 true 的时候，为只减仓委托
+	IsReduceOnly bool    `json:"is_reduce_only"` // 是否为只减仓委托。对应请求中的reduce_only。
+	IsLiq        bool    `json:"is_liq"`         // 是否为强制平仓委托
+	Tif          string  `json:"tif"`            // Time in force 策略，市价单当前只支持 ioc 模式
+	Left         int64   `json:"left"`           // 未成交数量
+	FillPrice    string  `json:"fill_price"`     // 成交价
+	Text         string  `json:"text"`           // 订单自定义信息，用户可以用该字段设置自定义 ID，用户自定义字段必须满足以下条件： 1. 必须以 t- 开头 2. 不计算 t- ，长度不能超��� 28 字节 3. 输入内容只能包含数字、字母、下划线(_)、中划线(-) 或者点(.) 除用户自定义信息以外，以下为内部保留字段，标识订单来源: - web: 网页 - api: API 调用 - app: 移动端 - auto_deleveraging: 自动减仓 - liquidation: 强制平仓 - insurance: 保险
+	Tkfr         string  `json:"tkfr"`           // 吃单费率
+	Mkfr         string  `json:"mkfr"`           // 做单费率
+	Refu         int64   `json:"refu"`           // 推荐人用户 ID
+	AutoSize     string  `json:"auto_size"`      // 双仓模式下用于设置平仓的方向，close_long 平多头， close_short 平空头，需要同时设置 size 为 0
+	StpId        int64   `json:"stp_id"`         // 订单所属的STP用户组id，同一个STP用户组内用户之间的订单不允许发生自成交。 1. 如果撮合时两个订单的 stp_id 非 0 且相等，则不成交，而是根据 taker 的 stp_act 执行相应策略。 2. 没有设置STP用户组成交的订单，stp_id 默认返回 0。
+	StpAct       string  `json:"stp_act"`        // Self-Trading Prevention Action,用户可以用该字段设置自定义限制自成交策略。 1. 用户在设置加入STP用户组后，可以通过传递 stp_act 来限制用户发生自成交的策略，没有传递 stp_act 默认按照 cn 的策略。 2. 用户在没有设置加入STP用户组时，传递 stp_act 参数会报错。 3. 用户没有使用 stp_act 发生成交的订单，stp_act 返回 -。 - cn: Cancel newest,取消新订单，保留老订单 - co: Cancel oldest,取消⽼订单，保留新订单 - cb: Cancel both,新旧订单都取消
+	AmendText    string  `json:"amend_text"`     // 用户修改订单时备注的信息
+	BizInfo      string  `json:"biz_info"`       // 附加信息
+}
