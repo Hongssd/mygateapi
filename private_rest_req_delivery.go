@@ -545,14 +545,8 @@ type PrivateRestDeliverySettleSettlementsAPI struct {
 
 type PrivateRestDeliverySettlePriceOrdersPostReq struct {
 	Settle  *string                    `json:"settle"`  //结算货币
-	Initial *GateFuturesOrderReqCommon `json:"initial"` //body	是
-	Trigger *struct {
-		StrategyType *int    `json:"strategy_type"` //body	integer(int32)	否	触发策略
-		PriceType    *int    `json:"price_type"`    //body	integer(int32)	否	参考价格类型。 0 - 最新成交价，1 - 标记价格，2 - 指数价格
-		Price        *string `json:"price"`         //body	string	否	价格触发时为价格，价差触发时为价差
-		Rule         *int    `json:"rule"`          //body	integer(int32)	否	价格条件类型
-		Expiration   *int    `json:"expiration"`    //body	integer	否	最长等待触发时间，超时则取消该订单，单位是秒 s
-	} `json:"trigger"` //body	是
+	Initial *PrivateRestFuturesSettlePriceOrdersPostInitialReq `json:"initial"` //body	是
+	Trigger *PrivateRestFuturesSettlePriceOrdersPostTriggerReq `json:"trigger"` //body	是
 	OrderType *string `json:"order_type"` //body	string	否	止盈止损的类型
 }
 
@@ -562,83 +556,21 @@ func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Settle(settle string) *P
 	return api
 }
 
-// initial	body	是
-// contract 请求参数	string	是	合约标识
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Contract(contract string) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.Contract = GetPointer(contract)
+// initial	请求参数	object	是
+func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Initial(initial PrivateRestFuturesSettlePriceOrdersPostInitialReq) *PrivateRestDeliverySettlePriceOrdersPostAPI {
+	if api.req.Initial == nil {
+		api.req.Initial = &PrivateRestFuturesSettlePriceOrdersPostInitialReq{}
+	}
+	api.req.Initial = &initial
 	return api
 }
 
-// size	请求参数	integer	否	交易数量，正数为买入，负数为卖出。平仓委托则设置为0。
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Size(size int64) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.Size = GetPointer(size)
-	return api
-}
-
-// price 请求参数	string	是	委托价。价格为0并且tif为ioc，代表市价委托。
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) InitialPrice(price string) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.Price = GetPointer(price)
-	return api
-}
-
-// close	请求参数	boolean	否	设置为 true 的时候执行平仓操作，并且size应设置为0
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Close(close bool) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.Close = GetPointer(close)
-	return api
-}
-
-// tif 请求参数	string	否	Time in force 策略，市价单当前只支持 ioc 模式
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Tif(tif string) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.Tif = GetPointer(tif)
-	return api
-}
-
-// text	请求参数	string	否	订单自定义信息，用户可以用该字段设置自定义 ID，用户自定义字段必须满足以下条件：
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Text(text string) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.Text = GetPointer(text)
-	return api
-}
-
-// reduce_only	请求参数	boolean	否	设置为 true 的时候执行自动减仓操作
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) ReduceOnly(reduceOnly bool) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.ReduceOnly = GetPointer(reduceOnly)
-	return api
-}
-
-// auto_size	请求参数	string	否	双仓模式下用于设置平仓的方向，close_long 平多头， close_short 平空头，需要同时设置 size 为 0
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) AutoSize(autoSize string) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Initial.AutoSize = GetPointer(autoSize)
-	return api
-}
-
-// trigger body 是
-// strategy_type	请求参数	integer	否	触发策略
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) StrategyType(strategyType int) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Trigger.StrategyType = GetPointer(strategyType)
-	return api
-}
-
-// price_type	请求参数	integer	否	参考价格类型。 0 - 最新成交价，1 - 标记价格，2 - 指数价格
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) PriceType(priceType int) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Trigger.PriceType = GetPointer(priceType)
-	return api
-}
-
-// price	请求参数	string	否	价格触发时为价格，价差触发时为价差
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) TriggerPrice(price string) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Trigger.Price = GetPointer(price)
-	return api
-}
-
-// rule	请求参数	integer	否	价格条件类型
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Rule(rule int) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Trigger.Rule = GetPointer(rule)
-	return api
-}
-
-// expiration	请求参数	integer	否	最长等待触发时间，超时则取消该订单，单位是秒 s
-func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Expiration(expiration int) *PrivateRestDeliverySettlePriceOrdersPostAPI {
-	api.req.Trigger.Expiration = GetPointer(expiration)
+// trigger	请求参数	object	是
+func (api *PrivateRestDeliverySettlePriceOrdersPostAPI) Trigger(trigger PrivateRestFuturesSettlePriceOrdersPostTriggerReq) *PrivateRestDeliverySettlePriceOrdersPostAPI {
+	if api.req.Trigger == nil {
+		api.req.Trigger = &PrivateRestFuturesSettlePriceOrdersPostTriggerReq{}
+	}
+	api.req.Trigger = &trigger
 	return api
 }
 
