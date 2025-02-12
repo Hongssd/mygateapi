@@ -275,3 +275,73 @@ func (api *PrivateRestFuturesSettleMyTradesAPI) Do() (*GateRestRes[PrivateRestFu
 	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettleMyTrades])
 	return gateCallApiWithSecret[PrivateRestFuturesSettleMyTradesRes](api.client.c, url, NIL_REQBODY, GET)
 }
+
+// gate PrivateRestFuturesSettlePriceOrdersPost PrivateRest接口 POST 创建价格触发订单
+func (client *PrivateRestClient) NewPrivateRestFuturesSettlePriceOrdersPost() *PrivateRestFuturesSettlePriceOrdersPostAPI {
+	return &PrivateRestFuturesSettlePriceOrdersPostAPI{
+		client: client,
+		req:    &PrivateRestFuturesSettlePriceOrdersPostReq{},
+	}
+}
+
+func (api *PrivateRestFuturesSettlePriceOrdersPostAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePriceOrdersPostRes], error) {
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePriceOrdersPost])
+	reqBody, err := json.Marshal(api.req)
+	if err != nil {
+		return nil, err
+	}
+	return gateCallApiWithSecret[PrivateRestFuturesSettlePriceOrdersPostRes](api.client.c, url, reqBody, POST)
+}
+
+// gate PrivateRestFuturesSettlePriceOrdersGet PrivateRest接口 GET 查询进行中自动订单列表
+func (client *PrivateRestClient) NewPrivateRestFuturesSettlePriceOrdersGet() *PrivateRestFuturesSettlePriceOrdersGetAPI {
+	return &PrivateRestFuturesSettlePriceOrdersGetAPI{
+		client: client,
+		req:    &PrivateRestFuturesSettlePriceOrdersGetReq{},
+	}
+}
+
+func (api *PrivateRestFuturesSettlePriceOrdersGetAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePriceOrdersGetRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePriceOrdersGet])
+	return gateCallApiWithSecret[PrivateRestFuturesSettlePriceOrdersGetRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
+// gate PrivateRestFuturesSettlePriceOrdersDelete PrivateRest接口 DELETE 批量取消自动订单
+func (client *PrivateRestClient) NewPrivateRestFuturesSettlePriceOrdersDelete() *PrivateRestFuturesSettlePriceOrdersDeleteAPI {
+	return &PrivateRestFuturesSettlePriceOrdersDeleteAPI{
+		client: client,
+		req:    &PrivateRestFuturesSettlePriceOrdersDeleteReq{},
+	}
+}
+
+func (api *PrivateRestFuturesSettlePriceOrdersDeleteAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePriceOrdersDeleteRes], error) {
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePriceOrdersDelete])
+	return gateCallApiWithSecret[PrivateRestFuturesSettlePriceOrdersDeleteRes](api.client.c, url, NIL_REQBODY, DELETE)
+}
+
+
+// gate PrivateRestFuturesSettlePriceOrdersOrderIdGet PrivateRest接口 GET 查询单个自动订单详情
+func (client *PrivateRestClient) NewPrivateRestFuturesSettlePriceOrdersOrderIdGet() *PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI {
+	return &PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI{
+		client: client,
+		req:    &PrivateRestFuturesSettlePriceOrdersOrderIdGetReq{},
+	}
+}
+
+func (api *PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePriceOrdersOrderIdGetRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePriceOrdersOrderIdGet])
+	return gateCallApiWithSecret[PrivateRestFuturesSettlePriceOrdersOrderIdGetRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
+// gate PrivateRestFuturesSettlePriceOrdersOrderIdDelete PrivateRest接口 DELETE 撤销单个自动订单
+func (client *PrivateRestClient) NewPrivateRestFuturesSettlePriceOrdersOrderIdDelete() *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI {
+	return &PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI{
+		client: client,
+		req:    &PrivateRestFuturesSettlePriceOrdersOrderIdDeleteReq{},
+	}
+}
+
+func (api *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI) Do() (*GateRestRes[PrivateRestFuturesSettlePriceOrdersOrderIdDeleteRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestFuturesSettlePriceOrdersOrderIdDelete])
+	return gateCallApiWithSecret[PrivateRestFuturesSettlePriceOrdersOrderIdDeleteRes](api.client.c, url, NIL_REQBODY, DELETE)
+}
