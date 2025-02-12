@@ -323,3 +323,33 @@ type PrivateRestSpotOrdersOrderIdDeleteRes PrivateRestSpotOrdersCommon
 type PrivateRestSpotPriceOrdersPostRes struct {
 	ID int64 `json:"id"` //integer(int64) 自动订单 ID
 }
+
+type PrivateRestSpotPriceTriggerOrderResCommon struct {
+	Trigger struct {
+		Price      string `json:"price"`      //string 触发价格
+		Rule       string `json:"rule"`       //string 价格条件类型
+		Expiration int64  `json:"expiration"` //integer 最长等待触发时间，超时则取消该订单，单位是秒 s
+	} `json:"trigger"`
+	Put struct {
+		Type        string `json:"type"`          //string 订单类型，默认为限价单
+		Side        string `json:"side"`          //string 买卖方向
+		Price       string `json:"price"`         //string 挂单价格
+		Amount      string `json:"amount"`        //string 交易数量
+		Account     string `json:"account"`       //string 交易账户类型，统一账户只能设置 cross_margin
+		TimeInForce string `json:"time_in_force"` //string time_in_force
+		Text        string `json:"text"`          //string 订单的来源，包括：- web: 网页- api: API 调用- app: 移动端
+	} `json:"put"`
+	ID           int64  `json:"id"`             //integer(int64) 自动订单 ID
+	User         int64  `json:"user"`           //integer 用户 ID
+	Market       string `json:"market"`         //string 市场
+	Ctime        int64  `json:"ctime"`          //integer(int64) 创建时间
+	Ftime        int64  `json:"ftime"`          //integer(int64) 结束时间
+	FiredOrderID int64  `json:"fired_order_id"` //integer(int64) 触发后委托单ID
+	Status       string `json:"status"`         //string 状态
+	Reason       string `json:"reason"`         //string 订单结束的附加描述信息
+}
+
+type PrivateRestSpotPriceOrdersGetRes []PrivateRestSpotPriceTriggerOrderResCommon
+type PrivateRestSpotPriceOrdersDeleteRes []PrivateRestSpotPriceTriggerOrderResCommon
+type PrivateRestSpotPriceOrdersOrderIdGetRes PrivateRestSpotPriceTriggerOrderResCommon
+type PrivateRestSpotPriceOrdersOrderIdDeleteRes PrivateRestSpotPriceTriggerOrderResCommon

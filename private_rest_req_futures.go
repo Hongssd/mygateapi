@@ -671,3 +671,186 @@ func (api *PrivateRestFuturesSettleOrdersTimeRangeAPI) Offset(offset int) *Priva
 	api.req.Offset = GetPointer(offset)
 	return api
 }
+
+type PrivateRestFuturesSettlePriceOrdersPostAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestFuturesSettlePriceOrdersPostReq
+}
+
+type PrivateRestFuturesSettlePriceOrdersPostInitialReq struct {
+	Contract   *string `json:"contract"`    //是 合约标识
+	Size       *int64  `json:"size"`        //否 交易数量，正数为买入，负数为卖出，平仓操作必须为0
+	Price      *string `json:"price"`       //是 交易价，当价格为 0 时，表示通过市价方式来下单
+	Close      *bool   `json:"close"`       //否 设置为 true 的时候执行平仓操作
+	Tif        *string `json:"tif"`         //否 Time in force 策略，市价单当前只支持 ioc 模式
+	Text       *string `json:"text"`        //否 订单的来源，包括：
+	ReduceOnly *bool   `json:"reduce_only"` //否 设置为 true 的时候执行自动减仓操作
+	AutoSize   *string `json:"auto_size"`   //否 双仓模式下用于设置平仓的方向，close_long 平多头， close_short 平空头，需要同时设置 size 为 0
+}
+
+func (d PrivateRestFuturesSettlePriceOrdersPostInitialReq) String() string {
+	return ""
+}
+
+type PrivateRestFuturesSettlePriceOrdersPostTriggerReq struct {
+	StrategyType *int32  `json:"strategy_type"` //否 触发策略
+	PriceType    *int32  `json:"price_type"`    //否 参考价格类型。 0 - 最新成交价，1 - 标记价格，2 - 指数价格
+	Price        *string `json:"price"`         //否 价格触发时为价格，价差触发时为价差
+	Rule         *int32  `json:"rule"`          //否 价格条件类型
+	Expiration   *int    `json:"expiration"`    //否 最长等待触发时间，超时则取消该订单，单位是秒 s
+}
+
+func (d PrivateRestFuturesSettlePriceOrdersPostTriggerReq) String() string {
+	return ""
+}
+
+type PrivateRestFuturesSettlePriceOrdersPostReq struct {
+	Settle    *string                                            `json:"settle"`     //是 结算货币
+	Initial   *PrivateRestFuturesSettlePriceOrdersPostInitialReq `json:"initial"`    //是
+	Trigger   *PrivateRestFuturesSettlePriceOrdersPostTriggerReq `json:"trigger"`    //是
+	OrderType *string                                            `json:"order_type"` //否 止盈止损的类型，包括：
+}
+
+// settle	URL	string	是	结算货币
+func (api *PrivateRestFuturesSettlePriceOrdersPostAPI) Settle(settle string) *PrivateRestFuturesSettlePriceOrdersPostAPI {
+	api.req.Settle = GetPointer(settle)
+	return api
+}
+
+// initial	请求参数	object	是 初始化参数
+func (api *PrivateRestFuturesSettlePriceOrdersPostAPI) Initial(initial PrivateRestFuturesSettlePriceOrdersPostInitialReq) *PrivateRestFuturesSettlePriceOrdersPostAPI {
+	if api.req.Initial == nil {
+		api.req.Initial = &PrivateRestFuturesSettlePriceOrdersPostInitialReq{}
+	}
+	api.req.Initial = &initial
+	return api
+}
+
+// trigger	请求参数	object	是 触发参数
+func (api *PrivateRestFuturesSettlePriceOrdersPostAPI) Trigger(trigger PrivateRestFuturesSettlePriceOrdersPostTriggerReq) *PrivateRestFuturesSettlePriceOrdersPostAPI {
+	if api.req.Trigger == nil {
+		api.req.Trigger = &PrivateRestFuturesSettlePriceOrdersPostTriggerReq{}
+	}
+	api.req.Trigger = &trigger
+	return api
+}
+
+// orderType 止盈止损的类型，包括：close-long-order: 委托单止盈止损，平做多仓 close-short-order: 委托单止盈止损，平做空仓 close-long-position: 仓位止盈止损，平多仓 close-short-position: 仓位止盈止损，平空仓 plan-close-long-position: 仓位计划止盈止损，平多仓 plan-close-short-position: 仓位计划止盈止损，平空仓
+func (api *PrivateRestFuturesSettlePriceOrdersPostAPI) OrderType(orderType string) *PrivateRestFuturesSettlePriceOrdersPostAPI {
+	api.req.OrderType = GetPointer(orderType)
+	return api
+}
+
+type PrivateRestFuturesSettlePriceOrdersGetAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestFuturesSettlePriceOrdersGetReq
+}
+
+// status	请求参数	string	是	基于状态查询订单列表
+// contract	请求参数	string	否	合约标识，如果指定则只返回该合约相关数据
+// limit	请求参数	integer	否	列表返回的最大数量
+// offset	请求参数	integer	否	列表返回的偏移量，从 0 开始
+// settle	URL	string	是	结算货币
+// #
+type PrivateRestFuturesSettlePriceOrdersGetReq struct {
+	Status   *string `json:"status"`   //是 基于状态查询订单列表
+	Contract *string `json:"contract"` //否 合约标识，如果指定则只返回该合约相关数据
+	Limit    *int    `json:"limit"`    //否 列表返回的最大数量
+	Offset   *int    `json:"offset"`   //否 列表返回的偏移量，从 0 开始
+	Settle   *string `json:"settle"`   //是 结算货币
+}
+
+// status	请求参数	string	是	基于状态查询订单列表
+func (api *PrivateRestFuturesSettlePriceOrdersGetAPI) Status(status string) *PrivateRestFuturesSettlePriceOrdersGetAPI {
+	api.req.Status = GetPointer(status)
+	return api
+}
+
+// contract	请求参数	string	否	合约标识，如果指定则只返回该合约相关数据
+func (api *PrivateRestFuturesSettlePriceOrdersGetAPI) Contract(contract string) *PrivateRestFuturesSettlePriceOrdersGetAPI {
+	api.req.Contract = GetPointer(contract)
+	return api
+}
+
+// limit	请求参数	integer	否	列表返回的最大数量
+func (api *PrivateRestFuturesSettlePriceOrdersGetAPI) Limit(limit int) *PrivateRestFuturesSettlePriceOrdersGetAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// offset	请求参数	integer	否	列表返回的偏移量，从 0 开始
+func (api *PrivateRestFuturesSettlePriceOrdersGetAPI) Offset(offset int) *PrivateRestFuturesSettlePriceOrdersGetAPI {
+	api.req.Offset = GetPointer(offset)
+	return api
+}
+
+// settle	URL	string	是	结算货币
+func (api *PrivateRestFuturesSettlePriceOrdersGetAPI) Settle(settle string) *PrivateRestFuturesSettlePriceOrdersGetAPI {
+	api.req.Settle = GetPointer(settle)
+	return api
+}
+
+type PrivateRestFuturesSettlePriceOrdersDeleteAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestFuturesSettlePriceOrdersDeleteReq
+}
+
+type PrivateRestFuturesSettlePriceOrdersDeleteReq struct {
+	Settle   *string `json:"settle"`   //是 结算货币
+	Contract *string `json:"contract"` //否 合约标识，如果指定则只返回该合约相关数据
+}
+
+// contract	请求参数	string	否	合约标识，如果指定则只返回该合约相关数据
+func (api *PrivateRestFuturesSettlePriceOrdersDeleteAPI) Contract(contract string) *PrivateRestFuturesSettlePriceOrdersDeleteAPI {
+	api.req.Contract = GetPointer(contract)
+	return api
+}
+
+// settle	URL	string	是	结算货币
+func (api *PrivateRestFuturesSettlePriceOrdersDeleteAPI) Settle(settle string) *PrivateRestFuturesSettlePriceOrdersDeleteAPI {
+	api.req.Settle = GetPointer(settle)
+	return api
+}
+
+type PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestFuturesSettlePriceOrdersOrderIdGetReq
+}
+type PrivateRestFuturesSettlePriceOrdersOrderIdGetReq struct {
+	Settle  *string `json:"settle"`   //是 结算货币
+	OrderId *string `json:"order_id"` //是 成功创建订单时返回的 ID
+}
+
+// settle	URL	string	是	结算货币
+func (api *PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI) Settle(settle string) *PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI {
+	api.req.Settle = GetPointer(settle)
+	return api
+}
+
+// order_id	URL	string	是	成功创建订单时返回的 ID
+func (api *PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI) OrderId(orderId string) *PrivateRestFuturesSettlePriceOrdersOrderIdGetAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+type PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteReq
+}
+
+type PrivateRestFuturesSettlePriceOrdersOrderIdDeleteReq struct {
+	Settle  *string `json:"settle"`   //是 结算货币
+	OrderId *string `json:"order_id"` //是 成功创建订单时返回的 ID
+}
+
+// settle	URL	string	是	结算货币
+func (api *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI) Settle(settle string) *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI {
+	api.req.Settle = GetPointer(settle)
+	return api
+}
+
+// order_id	URL	string	是	成功创建订单时返回的 ID
+func (api *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI) OrderId(orderId string) *PrivateRestFuturesSettlePriceOrdersOrderIdDeleteAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}

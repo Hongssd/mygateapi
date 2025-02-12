@@ -24,14 +24,18 @@ const (
 	PrivateRestMarginCrossTransferable //全仓杠杆允许的最大转出
 
 	// Spot & Margin 订单相关
-	PrivateRestSpotOrdersPost          //下单
-	PrivateRestSpotPriceOrdersPost     //创建价格触发订单
-	PrivateRestSpotOrdersOrderIdGet    //查询单个订单详情
-	PrivateRestSpotOrdersOrderIdPatch  //修改单个订单
-	PrivateRestSpotOrdersOrderIdDelete //撤销单个订单
-	PrivateRestSpotOpenOrders          //查询所有挂单
-	PrivateRestSpotOrdersGet           //查询订单列表
-	PrivateRestSpotMyTrades            //查询个人成交记录
+	PrivateRestSpotOrdersPost               //下单
+	PrivateRestSpotOrdersOrderIdGet         //查询单个订单详情
+	PrivateRestSpotOrdersOrderIdPatch       //修改单个订单
+	PrivateRestSpotOrdersOrderIdDelete      //撤销单个订单
+	PrivateRestSpotOpenOrders               //查询所有挂单
+	PrivateRestSpotOrdersGet                //查询订单列表
+	PrivateRestSpotMyTrades                 //查询个人成交记录
+	PrivateRestSpotPriceOrdersPost          //创建价格触发订单
+	PrivateRestSpotPriceOrdersGet           //查询进行中自动订单列表
+	PrivateRestSpotPriceOrdersDelete        //批量取消自动订单
+	PrivateRestSpotPriceOrdersOrderIdGet    //查询单个自动订单详情
+	PrivateRestSpotPriceOrdersOrderIdDelete //撤销单个自动订单
 
 	// Futures 账户相关
 	PrivateRestFuturesSettleAccounts                           //获取合约账户
@@ -48,13 +52,18 @@ const (
 	PrivateRestFuturesSettleDualCompPositionsContractRiskLimit //更新双仓模式下的仓位风险限额
 
 	// Futures 订单相关
-	PrivateRestFuturesSettleOrdersPost          //合约交易下单
-	PrivateRestFuturesSettleOrdersGet           //查询合约订单列表
-	PrivateRestFuturesSettleOrdersTimeRange     //查询合约订单列表(时间区间)
-	PrivateRestFuturesSettleOrdersOrderIdGet    //查询单个订单详情
-	PrivateRestFuturesSettleOrdersOrderIdDelete //撤销单个订单
-	PrivateRestFuturesSettleOrdersOrderIdPut    //修改单个订单
-	PrivateRestFuturesSettleMyTrades            //查询个人成交记录
+	PrivateRestFuturesSettleOrdersPost               //合约交易下单
+	PrivateRestFuturesSettleOrdersGet                //查询合约订单列表
+	PrivateRestFuturesSettleOrdersTimeRange          //查询合约订单列表(时间区间)
+	PrivateRestFuturesSettleOrdersOrderIdGet         //查询单个订单详情
+	PrivateRestFuturesSettleOrdersOrderIdDelete      //撤销单个订单
+	PrivateRestFuturesSettleOrdersOrderIdPut         //修改单个订单
+	PrivateRestFuturesSettleMyTrades                 //查询个人成交记录
+	PrivateRestFuturesSettlePriceOrdersPost          //创建价格触发订单
+	PrivateRestFuturesSettlePriceOrdersGet           //查询进行中自动订单列表
+	PrivateRestFuturesSettlePriceOrdersDelete        //批量取消自动订单
+	PrivateRestFuturesSettlePriceOrdersOrderIdGet    //查询单个自动订单详情
+	PrivateRestFuturesSettlePriceOrdersOrderIdDelete //撤销单个自动订单
 
 	// Delivery 账户相关
 	PrivateRestDeliverySettleAccounts                   //获取合约账户
@@ -113,14 +122,18 @@ var PrivateRestAPIMap = map[PrivateRestAPI]string{
 	PrivateRestMarginCrossTransferable: "/api/v4/margin/cross/transferable", //GET 全仓杠杆允许的最大转出
 
 	// Spot & Margin 订单相关
-	PrivateRestSpotOrdersPost:          "/api/v4/spot/orders",            //POST 下单
-	PrivateRestSpotPriceOrdersPost:     "/api/v4/spot/price_orders",      //POST 创建价格触发订单
-	PrivateRestSpotOrdersOrderIdGet:    "/api/v4/spot/orders/{order_id}", //GET 查询单个订单详情
-	PrivateRestSpotOrdersOrderIdPatch:  "/api/v4/spot/orders/{order_id}", //PATCH 修改单个订单
-	PrivateRestSpotOrdersOrderIdDelete: "/api/v4/spot/orders/{order_id}", //DELETE 撤销单个订单
-	PrivateRestSpotOrdersGet:           "/api/v4/spot/orders",            //GET 查询订单列表
-	PrivateRestSpotOpenOrders:          "/api/v4/spot/open_orders",       //GET 查询所有挂单
-	PrivateRestSpotMyTrades:            "/api/v4/spot/my_trades",         //GET 查询个人成交记录
+	PrivateRestSpotOrdersPost:               "/api/v4/spot/orders",                  //POST 下单
+	PrivateRestSpotOrdersOrderIdGet:         "/api/v4/spot/orders/{order_id}",       //GET 查询单个订单详情
+	PrivateRestSpotOrdersOrderIdPatch:       "/api/v4/spot/orders/{order_id}",       //PATCH 修改单个订单
+	PrivateRestSpotOrdersOrderIdDelete:      "/api/v4/spot/orders/{order_id}",       //DELETE 撤销单个订单
+	PrivateRestSpotOrdersGet:                "/api/v4/spot/orders",                  //GET 查询订单列表
+	PrivateRestSpotOpenOrders:               "/api/v4/spot/open_orders",             //GET 查询所有挂单
+	PrivateRestSpotMyTrades:                 "/api/v4/spot/my_trades",               //GET 查询个人成交记录
+	PrivateRestSpotPriceOrdersPost:          "/api/v4/spot/price_orders",            //POST 创建价格触发订单
+	PrivateRestSpotPriceOrdersGet:           "/api/v4/spot/price_orders",            //GET 查询价格触发订单列表
+	PrivateRestSpotPriceOrdersDelete:        "/api/v4/spot/price_orders",            //DELETE 批量取消自动订单
+	PrivateRestSpotPriceOrdersOrderIdGet:    "/api/v4/spot/price_orders/{order_id}", //GET 查询单个价格触发订单详情
+	PrivateRestSpotPriceOrdersOrderIdDelete: "/api/v4/spot/price_orders/{order_id}", //DELETE 撤销单个价格触发订单
 
 	// Futures 账户相关
 	PrivateRestFuturesSettleAccounts:                           "/api/v4/futures/{settle}/accounts",                                  //GET 获取合约账户
@@ -137,13 +150,18 @@ var PrivateRestAPIMap = map[PrivateRestAPI]string{
 	PrivateRestFuturesSettleDualCompPositionsContractRiskLimit: "/api/v4/futures/{settle}/dual_comp/positions/{contract}/risk_limit", //POST 更新双仓模式下的仓位风险限额
 
 	// Futures 订单相关
-	PrivateRestFuturesSettleOrdersPost:          "/api/v4/futures/{settle}/orders",            //POST 合约交易下单
-	PrivateRestFuturesSettleOrdersGet:           "/api/v4/futures/{settle}/orders",            //GET 查询合约订单列表
-	PrivateRestFuturesSettleOrdersTimeRange:     "/api/v4/futures/{settle}/orders_timerange",  //GET 查询合约订单列表(时间区间)
-	PrivateRestFuturesSettleOrdersOrderIdGet:    "/api/v4/futures/{settle}/orders/{order_id}", //GET 查询单个订单详情
-	PrivateRestFuturesSettleOrdersOrderIdDelete: "/api/v4/futures/{settle}/orders/{order_id}", //DELETE 撤销单个订单
-	PrivateRestFuturesSettleOrdersOrderIdPut:    "/api/v4/futures/{settle}/orders/{order_id}", //PUT 修改单个订单
-	PrivateRestFuturesSettleMyTrades:            "/api/v4/futures/{settle}/my_trades",         //GET 查询个人成交记录
+	PrivateRestFuturesSettleOrdersPost:               "/api/v4/futures/{settle}/orders",                  //POST 合约交易下单
+	PrivateRestFuturesSettleOrdersGet:                "/api/v4/futures/{settle}/orders",                  //GET 查询合约订单列表
+	PrivateRestFuturesSettleOrdersTimeRange:          "/api/v4/futures/{settle}/orders_timerange",        //GET 查询合约订单列表(时间区间)
+	PrivateRestFuturesSettleOrdersOrderIdGet:         "/api/v4/futures/{settle}/orders/{order_id}",       //GET 查询单个订单详情
+	PrivateRestFuturesSettleOrdersOrderIdDelete:      "/api/v4/futures/{settle}/orders/{order_id}",       //DELETE 撤销单个订单
+	PrivateRestFuturesSettleOrdersOrderIdPut:         "/api/v4/futures/{settle}/orders/{order_id}",       //PUT 修改单个订单
+	PrivateRestFuturesSettleMyTrades:                 "/api/v4/futures/{settle}/my_trades",               //GET 查询个人成交记录
+	PrivateRestFuturesSettlePriceOrdersPost:          "/api/v4/futures/{settle}/price_orders",            //POST 创建价格触发订单
+	PrivateRestFuturesSettlePriceOrdersGet:           "/api/v4/futures/{settle}/price_orders",            //GET 查询进行中自动订单列表
+	PrivateRestFuturesSettlePriceOrdersDelete:        "/api/v4/futures/{settle}/price_orders",            //DELETE 批量取消自动订单
+	PrivateRestFuturesSettlePriceOrdersOrderIdGet:    "/api/v4/futures/{settle}/price_orders/{order_id}", //GET 查询单个自动订单详情
+	PrivateRestFuturesSettlePriceOrdersOrderIdDelete: "/api/v4/futures/{settle}/price_orders/{order_id}", //DELETE 撤销单个自动订单
 
 	// Delivery 账户相关
 	PrivateRestDeliverySettleAccounts:                   "/api/v4/delivery/{settle}/accounts",                        //GET 获取合约账户
