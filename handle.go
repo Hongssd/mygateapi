@@ -47,6 +47,7 @@ func handlerCommonRest[T any](data []byte, respHeaderMap map[string]string, stat
 				return res, err
 			}
 		}
+		
 		res.Data = d
 	} else {
 		var errRes GateErrorRes
