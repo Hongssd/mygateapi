@@ -139,3 +139,55 @@ func (api *PrivateRestSpotPriceOrdersPostAPI) Do() (*GateRestRes[PrivateRestSpot
 	}
 	return gateCallApiWithSecret[PrivateRestSpotPriceOrdersPostRes](api.client.c, url, reqBody, POST)
 }
+
+// gate PrivateRestSpotPriceOrdersGet PrivateRest接口 GET 查询价格触发订单列表
+func (client *PrivateRestClient) NewPrivateRestSpotPriceOrdersGet() *PrivateRestSpotPriceOrdersGetAPI {
+	return &PrivateRestSpotPriceOrdersGetAPI{
+		client: client,
+		req:    &PrivateRestSpotPriceOrdersGetReq{},
+	}
+}
+
+func (api *PrivateRestSpotPriceOrdersGetAPI) Do() (*GateRestRes[PrivateRestSpotPriceOrdersGetRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestSpotPriceOrdersGet])
+	return gateCallApiWithSecret[PrivateRestSpotPriceOrdersGetRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
+// gate PrivateRestSpotPriceOrdersDelete PrivateRest接口 DELETE 批量取消自动订单
+func (client *PrivateRestClient) NewPrivateRestSpotPriceOrdersDelete() *PrivateRestSpotPriceOrdersDeleteAPI {
+	return &PrivateRestSpotPriceOrdersDeleteAPI{
+		client: client,
+		req:    &PrivateRestSpotPriceOrdersDeleteReq{},
+	}
+}
+
+func (api *PrivateRestSpotPriceOrdersDeleteAPI) Do() (*GateRestRes[PrivateRestSpotPriceOrdersDeleteRes], error) {
+	url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestSpotPriceOrdersDelete])
+	return gateCallApiWithSecret[PrivateRestSpotPriceOrdersDeleteRes](api.client.c, url, NIL_REQBODY, DELETE)
+}
+
+// gate PrivateRestSpotPriceOrdersOrderIdGet PrivateRest接口 GET 查询单个自动订单详情
+func (client *PrivateRestClient) NewPrivateRestSpotPriceOrdersOrderIdGet() *PrivateRestSpotPriceOrdersOrderIdGetAPI {
+	return &PrivateRestSpotPriceOrdersOrderIdGetAPI{
+		client: client,
+		req:    &PrivateRestSpotPriceOrdersOrderIdGetReq{},
+	}
+}
+
+func (api *PrivateRestSpotPriceOrdersOrderIdGetAPI) Do() (*GateRestRes[PrivateRestSpotPriceOrdersOrderIdGetRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestSpotPriceOrdersOrderIdGet])
+	return gateCallApiWithSecret[PrivateRestSpotPriceOrdersOrderIdGetRes](api.client.c, url, NIL_REQBODY, GET)
+}
+
+// gate PrivateRestSpotPriceOrdersOrderIdDelete PrivateRest接口 DELETE 撤销单个自动订单
+func (client *PrivateRestClient) NewPrivateRestSpotPriceOrdersOrderIdDelete() *PrivateRestSpotPriceOrdersOrderIdDeleteAPI {
+	return &PrivateRestSpotPriceOrdersOrderIdDeleteAPI{
+		client: client,
+		req:    &PrivateRestSpotPriceOrdersOrderIdDeleteReq{},
+	}
+}
+
+func (api *PrivateRestSpotPriceOrdersOrderIdDeleteAPI) Do() (*GateRestRes[PrivateRestSpotPriceOrdersOrderIdDeleteRes], error) {
+	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestSpotPriceOrdersOrderIdDelete])
+	return gateCallApiWithSecret[PrivateRestSpotPriceOrdersOrderIdDeleteRes](api.client.c, url, NIL_REQBODY, DELETE)
+}

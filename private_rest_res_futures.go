@@ -147,3 +147,12 @@ type PrivateRestFuturesSettleOrdersTimeRangeRes []struct {
 	AmendText    string  `json:"amend_text"`     // 用户修改订单时备注的信息
 	BizInfo      string  `json:"biz_info"`       // 附加信息
 }
+
+type PrivateRestFuturesSettlePriceOrdersPostRes struct {
+	Id int64 `json:"id"` // 自动订单 ID
+}
+
+type PrivateRestFuturesSettlePriceOrdersGetRes []GateFuturesPriceTriggeredOrderResCommon
+type PrivateRestFuturesSettlePriceOrdersDeleteRes []GateFuturesPriceTriggeredOrderResCommon
+type PrivateRestFuturesSettlePriceOrdersOrderIdGetRes GateFuturesPriceTriggeredOrderResCommon
+type PrivateRestFuturesSettlePriceOrdersOrderIdDeleteRes GateFuturesPriceTriggeredOrderResCommon

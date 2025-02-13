@@ -506,95 +506,52 @@ type PrivateRestSpotMyTradesAPI struct {
 }
 
 type PrivateRestSpotPriceOrdersPostReq struct {
-	Trigger *struct {
-		Price      *string `json:"price"`      //string	是	触发价格
-		Rule       *string `json:"rule"`       //string	是	价格条件类型 =: 表示市场价格大于等于 price时触发 <=: 表示市场价格小于等于 price时触发
-		Expiration *int    `json:"expiration"` //integer	是	最长等待触发时间，超时则取消该订单，单位是秒 s
-	} `json:"trigger"` //object	是
-	Put *struct {
-		Type        *string `json:"type"`          //string	否	订单类型，默认为限价单
-		Side        *string `json:"side"`          //string	是	买卖方向
-		Price       *string `json:"price"`         //string	是	挂单价格
-		Amount      *string `json:"amount"`        //string	是	交易数量
-		Account     *string `json:"account"`       //string	是	交易账户类型，统一账户只能设置 cross_margin
-		TimeInForce *string `json:"time_in_force"` //string	否	time_in_force
-		Text        *string `json:"text"`          //string	否	订单的来源，包括：
-		Market      *string `json:"market"`        //string	是	市场
-	} `json:"put"` //object	是
-	Market *string `json:"market"` //string	是	市场
+	Trigger *PrivateRestSpotPriceOrdersPostTriggerReq `json:"trigger"`
+	Put     *PrivateRestSpotPriceOrdersPostPutReq     `json:"put"`
+	Market  *string                                   `json:"market"` // 市场
 }
 
-// trigger	请求参数	object	是
-// » price	请求参数	string	是	触发价格
-func (api *PrivateRestSpotPriceOrdersPostAPI) TriggerPrice(price string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Trigger.Price = GetPointer(price)
+type PrivateRestSpotPriceOrdersPostTriggerReq struct {
+	Price      *string `json:"price"`      // 触发价格
+	Rule       *string `json:"rule"`       // 价格条件类型
+	Expiration *int    `json:"expiration"` // 最长等待触发时间，超时则取消该订单，单位是秒 s
+}
+
+type PrivateRestSpotPriceOrdersPostPutReq struct {
+	Type        *string `json:"type"`          // 订单类型，默认为限价单
+	Side        *string `json:"side"`          // 买卖方向
+	Price       *string `json:"price"`         // 挂单价格
+	Amount      *string `json:"amount"`        // 交易数量
+	Account     *string `json:"account"`       // 交易账户类型，统一账户只能设置 cross_margin
+	TimeInForce *string `json:"time_in_force"` // time_in_force
+	Text        *string `json:"text"`          // 订单的来源，包括：
+}
+
+func (d PrivateRestSpotPriceOrdersPostTriggerReq) String() string {
+	return ""
+}
+
+func (d PrivateRestSpotPriceOrdersPostPutReq) String() string {
+	return ""
+}
+
+func (api *PrivateRestSpotPriceOrdersPostAPI) Trigger(trigger PrivateRestSpotPriceOrdersPostTriggerReq) *PrivateRestSpotPriceOrdersPostAPI {
+	if api.req.Trigger == nil {
+		api.req.Trigger = &PrivateRestSpotPriceOrdersPostTriggerReq{}
+	}
+	api.req.Trigger = &trigger
 	return api
 }
 
-// trigger	请求参数	object	是
-// » rule	请求参数	string	是	价格条件类型 =: 表示市场价格大于等于 price时触发 <=: 表示市场价格小于等于 price时触发
-func (api *PrivateRestSpotPriceOrdersPostAPI) TriggerRule(rule string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Trigger.Rule = GetPointer(rule)
+func (api *PrivateRestSpotPriceOrdersPostAPI) Put(put PrivateRestSpotPriceOrdersPostPutReq) *PrivateRestSpotPriceOrdersPostAPI {
+	if api.req.Put == nil {
+		api.req.Put = &PrivateRestSpotPriceOrdersPostPutReq{}
+	}
+	api.req.Put = &put
 	return api
 }
 
-// trigger	请求参数	object 	是
-// » expiration	请求参数	integer	是	最长等待触发时间，超时则取消该订单，单位是秒 s
-func (api *PrivateRestSpotPriceOrdersPostAPI) TriggerExpiration(expiration int) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Trigger.Expiration = GetPointer(expiration)
-	return api
-}
-
-// put	请求参数	object	是
-// » type	请求参数	string	否	订单类型，默认为限价单
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutType(t string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.Type = GetPointer(t)
-	return api
-}
-
-// put	请求参数	object	是
-// » side	请求参数	string	是	买卖方向
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutSide(side string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.Side = GetPointer(side)
-	return api
-}
-
-// put	请求参数	object	是
-// » price	请求参数	string	是	挂单价格
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutPrice(price string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.Price = GetPointer(price)
-	return api
-}
-
-// put	请求参数	object	是
-// » amount	请求参数	string	是	交易数量
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutAmount(amount string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.Amount = GetPointer(amount)
-	return api
-}
-
-// put	请求参数	object	是
-// » account	请求参数	string	是	交易账户类型，统一账户只能设置 cross_margin
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutAccount(account string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.Account = GetPointer(account)
-	return api
-}
-
-// put	请求参数	object	是
-// » time_in_force	请求参数	string	否	time_in_force
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutTimeInForce(timeInForce string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.TimeInForce = GetPointer(timeInForce)
-	return api
-}
-
-// put	请求参数	object	是
-// » text	请求参数	string	否	订单的来源，包括：
-func (api *PrivateRestSpotPriceOrdersPostAPI) PutText(text string) *PrivateRestSpotPriceOrdersPostAPI {
-	api.req.Put.Text = GetPointer(text)
-	return api
-}
-
-// » market	请求参数	string	是	市场
+// market	请求参数	string	是	市场
 func (api *PrivateRestSpotPriceOrdersPostAPI) Market(market string) *PrivateRestSpotPriceOrdersPostAPI {
 	api.req.Market = GetPointer(market)
 	return api
@@ -604,3 +561,99 @@ type PrivateRestSpotPriceOrdersPostAPI struct {
 	client *PrivateRestClient
 	req    *PrivateRestSpotPriceOrdersPostReq
 }
+type PrivateRestSpotPriceOrdersGetAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotPriceOrdersGetReq
+}
+
+type PrivateRestSpotPriceOrdersGetReq struct {
+	Status  *string `json:"status"`  //string	是	基于状态查询订单列表
+	Market  *string `json:"market"`  //string	否	交易市场
+	Account *string `json:"account"` //string	否	交易账户类型，统一账户只能设置 cross_margin
+	Limit   *int    `json:"limit"`   //integer	否	列表返回的最大数量
+	Offset  *int    `json:"offset"`  //integer	否	列表返回的偏移量，从 0 开始
+}
+
+// status	请求参数	string	是	基于状态查询订单列表
+func (api *PrivateRestSpotPriceOrdersGetAPI) Status(status string) *PrivateRestSpotPriceOrdersGetAPI {
+	api.req.Status = GetPointer(status)
+	return api
+}
+
+// market	请求参数	string	否	交易市场
+func (api *PrivateRestSpotPriceOrdersGetAPI) Market(market string) *PrivateRestSpotPriceOrdersGetAPI {
+	api.req.Market = GetPointer(market)
+	return api
+}
+
+// account	请求参数	string	否	交易账户类型，统一账户只能设置 cross_margin
+func (api *PrivateRestSpotPriceOrdersGetAPI) Account(account string) *PrivateRestSpotPriceOrdersGetAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+// limit	请求参数	integer	否	列表返回的最大数量
+func (api *PrivateRestSpotPriceOrdersGetAPI) Limit(limit int) *PrivateRestSpotPriceOrdersGetAPI {
+	api.req.Limit = GetPointer(limit)
+	return api
+}
+
+// offset	请求参数	integer	否	列表返回的偏移量，从 0 开始
+func (api *PrivateRestSpotPriceOrdersGetAPI) Offset(offset int) *PrivateRestSpotPriceOrdersGetAPI {
+	api.req.Offset = GetPointer(offset)
+	return api
+}
+
+type PrivateRestSpotPriceOrdersOrderIdGetAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotPriceOrdersOrderIdGetReq
+}
+
+type PrivateRestSpotPriceOrdersOrderIdGetReq struct {
+	OrderId *string `json:"order_id"` //string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+}
+
+// order_id	请求参数	string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+func (api *PrivateRestSpotPriceOrdersOrderIdGetAPI) OrderId(orderId string) *PrivateRestSpotPriceOrdersOrderIdGetAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+type PrivateRestSpotPriceOrdersOrderIdDeleteAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotPriceOrdersOrderIdDeleteReq
+}
+
+type PrivateRestSpotPriceOrdersOrderIdDeleteReq struct {
+	OrderId *string `json:"order_id"` //string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+}
+
+// order_id	请求参数	string	是	成功创建订单时返回的订单 ID 或者用户创建时指定的自定义 ID（即 text 字段）。
+func (api *PrivateRestSpotPriceOrdersOrderIdDeleteAPI) OrderId(orderId string) *PrivateRestSpotPriceOrdersOrderIdDeleteAPI {
+	api.req.OrderId = GetPointer(orderId)
+	return api
+}
+
+type PrivateRestSpotPriceOrdersDeleteAPI struct {
+	client *PrivateRestClient
+	req    *PrivateRestSpotPriceOrdersDeleteReq
+}
+
+type PrivateRestSpotPriceOrdersDeleteReq struct {
+	Market  *string `json:"market"`  //string	否	交易市场
+	Account *string `json:"account"` //string	否	交易账户类型，统一账户只能设置 cross_margin
+}
+
+// market	请求参数	string	否	交易市场
+func (api *PrivateRestSpotPriceOrdersDeleteAPI) Market(market string) *PrivateRestSpotPriceOrdersDeleteAPI {
+	api.req.Market = GetPointer(market)
+	return api
+}
+
+// account	请求参数	string	否	交易账户类型，统一账户只能设置 cross_margin
+func (api *PrivateRestSpotPriceOrdersDeleteAPI) Account(account string) *PrivateRestSpotPriceOrdersDeleteAPI {
+	api.req.Account = GetPointer(account)
+	return api
+}
+
+

@@ -157,14 +157,14 @@ func gateCallApiWithSecret[T any](client *Client, url url.URL, reqBody []byte, m
 	hmacSha512Data := method + "\n" + requestPath + "\n" + query + "\n" + reqBodySum512String + "\n" + strconv.FormatInt(timestamp, BIT_BASE_10)
 	sign := HmacSha512(client.ApiSecret, hmacSha512Data)
 
-	//log.Warn(hmacSha512Data)
-	//log.Warn("timestamp: ", timestamp)
-	//log.Warn("method: ", method)
-	//log.Warn("requestPath: ", requestPath)
-	//log.Warn("query: ", query)
-	//log.Warn("reqBody: ", string(reqBody))
-	//log.Warn("hmacSha512Data: ", hmacSha512Data)
-	//log.Warn("sign: ", sign)
+	// log.Warn(hmacSha512Data)
+	// log.Warn("timestamp: ", timestamp)
+	// log.Warn("method: ", method)
+	// log.Warn("requestPath: ", requestPath)
+	// log.Warn("query: ", query)
+	// log.Warn("reqBody: ", string(reqBody))
+	// log.Warn("hmacSha512Data: ", hmacSha512Data)
+	// log.Warn("sign: ", sign)
 
 	body, respHeaderMap, statusCode, err := RequestWithHeader(url.String(), reqBody, method,
 		map[string]string{
