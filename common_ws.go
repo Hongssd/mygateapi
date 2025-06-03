@@ -405,7 +405,7 @@ func NewFuturesWsStreamClient(client *RestClient, contractType ContractType) *Fu
 	}
 }
 
-func NewDeliveryStreamClient(client *RestClient, contractType ContractType) *DeliveryWsStreamClient {
+func NewDeliveryWsStreamClient(client *RestClient, contractType ContractType) *DeliveryWsStreamClient {
 	return &DeliveryWsStreamClient{
 		WsStreamClient{
 			apiType:       WS_DELIVERY,
