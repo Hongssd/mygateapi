@@ -61,6 +61,7 @@ type WsStreamClient struct {
 	conn         *websocket.Conn
 	proxy        *url.URL
 	connId       string
+	userId       int64
 
 	waitSubscribeResMap MySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]] //等待订阅结果
 
@@ -372,6 +373,18 @@ func (ws *WsStreamClient) OpenConn() error {
 		return err
 	}
 
+}
+
+func (ws *WsStreamClient) CheckUserId() error {
+	if ws.userId == 0 && ws.client != nil {
+		accountDetailRes, err := ws.client.PrivateRestClient().NewPrivateRestAccountDetail().Do()
+		if err != nil {
+			log.Error(err)
+			return err
+		}
+		ws.userId = accountDetailRes.Data.UserId
+	}
+	return nil
 }
 
 type SpotWsStreamClient struct {

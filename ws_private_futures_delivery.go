@@ -1,23 +1,35 @@
 package mygateapi
 
 import (
+	"strconv"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
 
 // 订阅订单频道
-func (ws *FutureAndDeliveryWsStreamClient) SubscribeOrder(userId, contract string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesOrder]], error) {
-	return ws.SubscribeOrderMultiple(userId, []string{contract})
+func (ws *FutureAndDeliveryWsStreamClient) SubscribeOrders(symbols ...string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesOrder]], error) {
+	return ws.SubscribeOrderMultiple(symbols...)
 }
-func (ws *FutureAndDeliveryWsStreamClient) SubscribeOrderMultiple(userId string, contracts []string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesOrder]], error) {
+func (ws *FutureAndDeliveryWsStreamClient) SubscribeOrderMultiple(symbols ...string) (*MultipleSubscription[WsSubscribeResult[[]WsFuturesOrder]], error) {
 	channel := "futures.orders"
 	payloads := [][]string{}
-	subKeys := contracts
-	for _, c := range contracts {
-		payload := []string{userId, c}
+
+	err := ws.CheckUserId()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(symbols) == 0 {
+		symbols = []string{"!all"}
+	}
+
+	for _, c := range symbols {
+		payload := []string{strconv.FormatInt(ws.userId, 10), c}
 		payloads = append(payloads, payload)
 	}
+
+	subKeys := symbols
 
 	var thisSubs []*Subscription[WsSubscribeResult[[]WsFuturesOrder]]
 	var mu sync.Mutex
@@ -48,17 +60,21 @@ func (ws *FutureAndDeliveryWsStreamClient) SubscribeOrderMultiple(userId string,
 
 	return subscription, nil
 }
-func (ws *FutureAndDeliveryWsStreamClient) UnSubscribeOrder(userId, contract string) error {
-	return ws.UnSubscribeOrderMultiple(userId, []string{contract})
+func (ws *FutureAndDeliveryWsStreamClient) UnSubscribeOrder(symbols ...string) error {
+	return ws.UnSubscribeOrderMultiple(symbols...)
 }
-func (ws *FutureAndDeliveryWsStreamClient) UnSubscribeOrderMultiple(userId string, contracts []string) error {
+func (ws *FutureAndDeliveryWsStreamClient) UnSubscribeOrderMultiple(symbols ...string) error {
 	channel := "futures.orders"
 	payloads := [][]string{}
-	subKeys := contracts
-	for _, c := range contracts {
-		payload := []string{userId, c}
+
+	if len(symbols) == 0 {
+		symbols = []string{"!all"}
+	}
+	for _, c := range symbols {
+		payload := []string{strconv.FormatInt(ws.userId, 10), c}
 		payloads = append(payloads, payload)
 	}
+	subKeys := symbols
 
 	var mu sync.Mutex
 	var errG errgroup.Group
