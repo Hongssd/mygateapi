@@ -3,14 +3,15 @@ package mygateapi
 import (
 	"errors"
 	"fmt"
-	"github.com/bwmarrin/snowflake"
-	"github.com/gorilla/websocket"
-	"golang.org/x/sync/errgroup"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bwmarrin/snowflake"
+	"github.com/gorilla/websocket"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -376,11 +377,15 @@ func (ws *WsStreamClient) OpenConn() error {
 type SpotWsStreamClient struct {
 	WsStreamClient
 }
-type FuturesWsStreamClient struct {
+
+type FutureAndDeliveryWsStreamClient struct {
 	WsStreamClient
 }
+type FuturesWsStreamClient struct {
+	FutureAndDeliveryWsStreamClient
+}
 type DeliveryWsStreamClient struct {
-	WsStreamClient
+	FutureAndDeliveryWsStreamClient
 }
 
 func NewSpotWsStreamClient(client *RestClient) *SpotWsStreamClient {
@@ -395,24 +400,28 @@ func NewSpotWsStreamClient(client *RestClient) *SpotWsStreamClient {
 }
 func NewFuturesWsStreamClient(client *RestClient, contractType ContractType) *FuturesWsStreamClient {
 	return &FuturesWsStreamClient{
-		WsStreamClient{
-			apiType:       WS_FUTURES,
-			contractType:  contractType,
-			client:        client,
-			currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
-			candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+		FutureAndDeliveryWsStreamClient{
+			WsStreamClient{
+				apiType:       WS_FUTURES,
+				contractType:  contractType,
+				client:        client,
+				currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
+				candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+			},
 		},
 	}
 }
 
 func NewDeliveryWsStreamClient(client *RestClient, contractType ContractType) *DeliveryWsStreamClient {
 	return &DeliveryWsStreamClient{
-		WsStreamClient{
-			apiType:       WS_DELIVERY,
-			contractType:  contractType,
-			client:        client,
-			currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
-			candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+		FutureAndDeliveryWsStreamClient{
+			WsStreamClient{
+				apiType:       WS_DELIVERY,
+				contractType:  contractType,
+				client:        client,
+				currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
+				candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+			},
 		},
 	}
 }
