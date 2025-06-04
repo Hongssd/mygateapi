@@ -73,7 +73,7 @@ func (fc *WsFutureCandles) convertToWsCandle() *WsCandles {
 
 type WsSpotOrder struct {
 	Id                 string `json:"id"`                   // 订单 ID
-	User               int    `json:"user"`                 // 用户 ID
+	User               int64  `json:"user"`                 // 用户 ID
 	Text               string `json:"text"`                 // 用户自定义订单信息
 	CreateTime         string `json:"create_time"`          // 订单创建时间，精确到秒
 	CreateTimeMs       string `json:"create_time_ms"`       // 订单创建时间，精确到毫秒
@@ -100,7 +100,7 @@ type WsSpotOrder struct {
 	RebatedFeeCurrency string `json:"rebated_fee_currency"` // 返还手续费计价单位
 	AutoRepay          bool   `json:"auto_repay"`           // 启用自动还款
 	AutoBorrow         bool   `json:"auto_borrow"`          // 启用自动借款
-	StpId              int    `json:"stp_id"`               // stp_id
+	StpId              int64  `json:"stp_id"`               // stp_id
 	StpAct             string `json:"stp_act"`              // stp_act
 	FinishAs           string `json:"finish_as"`            // 订单的完成状态
 	AmendText          string `json:"amend_text"`           // 用户在修改订单时添加的自定义数据
@@ -430,37 +430,37 @@ type WsFuturesTicker struct {
 }
 
 type WsFuturesOrder struct {
-	CreateTime      int64  `json:"create_time"`       // 订单创建时间（已弃用）
-	CreateTimeMs    int64  `json:"create_time_ms"`    // 订单创建时间戳（以毫秒为单位）
-	FillPrice       string `json:"fill_price"`        // 订单成交价格
-	FinishAs        string `json:"finish_as"`         // 订单是如何完成的
-	Iceberg         int    `json:"iceberg"`           // 冰山下单显示的数量
-	Id              int64  `json:"id"`                // 订单 ID
-	IsClose         bool   `json:"is_close"`          // 是否为 close position
-	IsLiq           bool   `json:"is_liq"`            // 是否为 liquidation
-	Left            int64  `json:"left"`              // 剩余可交易数量
-	Mkfr            string `json:"mkfr"`              // Maker 费用
-	IsReduceOnly    bool   `json:"is_reduce_only"`    // 是否为 reduce-only
-	Status          string `json:"status"`            // 订单状态
-	Tkfr            string `json:"tkfr"`              // taker 费用
-	Price           string `json:"price"`             // 订单价格
-	Refu            int64  `json:"refu"`              // 推荐用户 ID
-	Refr            string `json:"refr"`              // 推荐用户费用
-	Size            int64  `json:"size"`              // 订单大小
-	Text            string `json:"text"`              // 用户定义的信息
-	Tif             string `json:"tif"`               // 有效时间
-	FinishTime      int64  `json:"finish_time"`       // 订单结束 unix 时间戳（以秒为单位）
-	FinishTimeMs    int64  `json:"finish_time_ms"`    // 订单结束 unix 时间戳（以毫秒为单位）
-	User            string `json:"user"`              // 用户 ID
-	Contract        string `json:"contract"`          // 合约名称
-	StpId           string `json:"stp_id"`            // stp_id
-	StpAct          string `json:"stp_act"`           // stp_act
-	AmendText       string `json:"amend_text"`        // 用户修改订单时备注的自定义数据
-	UpdateId        int64  `json:"update_id"`         // 更新id
-	UpdateTime      int64  `json:"update_time"`       // 更新时间 (毫秒时间戳)
-	BizInfo         string `json:"biz_info"`          // 业务信息
-	StopProfitPrice string `json:"stop_profit_price"` // 止盈价格
-	StopLossPrice   string `json:"stop_loss_price"`   // 止损价格
+	CreateTime      int64   `json:"create_time"`       // 订单创建时间（已弃用）
+	CreateTimeMs    int64   `json:"create_time_ms"`    // 订单创建时间戳（以毫秒为单位）
+	FillPrice       float64 `json:"fill_price"`        // 订单成交价格 Float
+	FinishAs        string  `json:"finish_as"`         // 订单是如何完成的 String
+	Iceberg         int64   `json:"iceberg"`           // 冰山下单显示的数量 Integer
+	Id              int64   `json:"id"`                // 订单 ID Integer
+	IsClose         bool    `json:"is_close"`          // 是否为 close position Boolean
+	IsLiq           bool    `json:"is_liq"`            // 是否为 liquidation Boolean
+	Left            int64   `json:"left"`              // 剩余可交易数量 Integer
+	Mkfr            float64 `json:"mkfr"`              // Maker 费用 Float
+	IsReduceOnly    bool    `json:"is_reduce_only"`    // 是否为 reduce-only Boolean
+	Status          string  `json:"status"`            // 订单状态 String
+	Tkfr            float64 `json:"tkfr"`              // taker 费用 Float
+	Price           float64 `json:"price"`             // 订单价格 Float
+	Refu            int64   `json:"refu"`              // 推荐用户 ID Integer
+	Refr            float64 `json:"refr"`              // 推荐用户费用 Float
+	Size            int64   `json:"size"`              // 订单大小 Integer
+	Text            string  `json:"text"`              // 用户定义的信息 String
+	Tif             string  `json:"tif"`               // 有效时间 String
+	FinishTime      int64   `json:"finish_time"`       // 订单结束 unix 时间戳（以秒为单位） Integer
+	FinishTimeMs    int64   `json:"finish_time_ms"`    // 订单结束 unix 时间戳（以毫秒为单位） Integer
+	User            string  `json:"user"`              // 用户 ID String
+	Contract        string  `json:"contract"`          // 合约名称 String
+	StpId           string  `json:"stp_id"`            // stp_id String
+	StpAct          string  `json:"stp_act"`           // stp_act String
+	AmendText       string  `json:"amend_text"`        // 用户修改订单时备注的自定义数据 String
+	UpdateId        int64   `json:"update_id"`         // 更新id Integer
+	UpdateTime      int64   `json:"update_time"`       // 更新时间 (毫秒时间戳) Integer
+	BizInfo         string  `json:"biz_info"`          // 业务信息 String
+	StopProfitPrice float64 `json:"stop_profit_price"` // 止盈价格 Float
+	StopLossPrice   float64 `json:"stop_loss_price"`   // 止损价格 Float
 }
 
 type WsFuturesPosition struct {
@@ -495,4 +495,3 @@ type WsFuturesBalance struct {
 	User     string  `json:"user"`     //用户 ID
 	Currency string  `json:"currency"` //币种
 }
-
