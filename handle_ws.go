@@ -459,8 +459,8 @@ type WsFuturesOrder struct {
 	UpdateId        int64   `json:"update_id"`         // 更新id Integer
 	UpdateTime      int64   `json:"update_time"`       // 更新时间 (毫秒时间戳) Integer
 	BizInfo         string  `json:"biz_info"`          // 业务信息 String
-	StopProfitPrice float64 `json:"stop_profit_price"` // 止盈价格 Float
-	StopLossPrice   float64 `json:"stop_loss_price"`   // 止损价格 Float
+	StopProfitPrice string  `json:"stop_profit_price"` // 止盈价格
+	StopLossPrice   string  `json:"stop_loss_price"`   // 止损价格
 }
 
 type WsFuturesPosition struct {
