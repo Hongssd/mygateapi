@@ -5,12 +5,13 @@ import (
 	"compress/gzip"
 	"crypto/tls"
 	"errors"
-	"github.com/robfig/cron/v3"
 	"io"
 	"math/rand"
 	"net/http"
 	"net/url"
 	"strconv"
+
+	"github.com/robfig/cron/v3"
 )
 
 type RestProxy struct {
@@ -131,11 +132,12 @@ func RequestWithHeader(urlStr string, reqBody []byte, method string, headerMap m
 		req.Header.Add("Content-Encoding", "gzip")
 		req.Header.Add("Accept-Encoding", "gzip")
 	}
-	req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
+
 	log.Debug(req.Header)
 	log.Debug(method, ": ", req.URL.String())
-	if reqBody != nil && len(reqBody) > 0 {
+	if len(reqBody) > 0 {
 		log.Debug("reqBody: ", string(reqBody))
+		req.Body = io.NopCloser(bytes.NewBuffer(reqBody))
 	}
 
 	var currentProxy *RestProxy
