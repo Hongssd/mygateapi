@@ -127,6 +127,39 @@ func (o *WsOrderBook) HandleSubKey() string {
 func (t *WsTrade) HandleSubKey() string {
 	return t.Symbol
 }
+
+// 统一的Ticker结构体，兼容现货和期货
+type WsTicker struct {
+	Symbol           string `json:"currency_pair,omitempty"` // 现货: currency_pair, 期货: contract
+	Contract         string `json:"contract,omitempty"`      // 期货合约名称
+	Last             string `json:"last"`                    // 最新成交价
+	ChangePercentage string `json:"change_percentage"`       // 涨跌百分比
+	BaseVolume       string `json:"base_volume,omitempty"`   // 现货: 基础货币成交量
+	QuoteVolume      string `json:"quote_volume,omitempty"`  // 现货: 计价货币成交量
+	LowestAsk        string `json:"lowest_ask,omitempty"`    // 现货: 卖方最低价
+	HighestBid       string `json:"highest_bid,omitempty"`   // 现货: 买方最高价
+	High24h          string `json:"high_24h"`                // 24小时最高价
+	Low24h           string `json:"low_24h"`                 // 24小时最低价
+
+	// 期货特有字段
+	FundingRate           string `json:"funding_rate,omitempty"`            // 资金费率
+	FundingRateIndicative string `json:"funding_rate_indicative,omitempty"` // 下一期参考资金费率
+	MarkPrice             string `json:"mark_price,omitempty"`              // 标记价格
+	IndexPrice            string `json:"index_price,omitempty"`             // 指数价格
+	TotalSize             string `json:"total_size,omitempty"`              // 总数量
+	Volume24h             string `json:"volume_24h,omitempty"`              // 24小时成交量
+	Volume24hQuote        string `json:"volume_24h_quote,omitempty"`        // 24小时计价货币成交量
+	Volume24hSettle       string `json:"volume_24h_settle,omitempty"`       // 24小时结算货币成交量
+	Volume24hBase         string `json:"volume_24h_base,omitempty"`         // 24小时基础货币成交量
+}
+
+func (t *WsTicker) HandleSubKey() string {
+	if t.Symbol != "" {
+		return t.Symbol // 现货使用currency_pair
+	}
+	return t.Contract // 期货使用contract
+}
+
 func convertToWsData[T any, R any](originData *WsSubscribeResult[T], targetResult *R) *WsSubscribeResult[R] {
 	return &WsSubscribeResult[R]{
 		Time:    originData.Time,
@@ -427,6 +460,41 @@ type WsFuturesTicker struct {
 	Volume24hBase         string `json:"volume_24h_base"`         //近 24 小时交易量，以基础货币计
 	Low24h                string `json:"low_24h"`                 //近 24 小时最低交易价
 	High24h               string `json:"high_24h"`                //近 24 小时最高交易价
+}
+
+// WsSpotTicker转换为统一的WsTicker
+func (t *WsSpotTicker) convertToWsTicker() *WsTicker {
+	return &WsTicker{
+		Symbol:           t.CurrencyPair,
+		Last:             t.Last,
+		ChangePercentage: t.ChangePercentage,
+		BaseVolume:       t.BaseVolume,
+		QuoteVolume:      t.QuoteVolume,
+		LowestAsk:        t.LowestAsk,
+		HighestBid:       t.HighestBid,
+		High24h:          t.High24h,
+		Low24h:           t.Low24h,
+	}
+}
+
+// WsFuturesTicker转换为统一的WsTicker
+func (t *WsFuturesTicker) convertToWsTicker() *WsTicker {
+	return &WsTicker{
+		Contract:              t.Contract,
+		Last:                  t.Last,
+		ChangePercentage:      t.ChangePercentage,
+		High24h:               t.High24h,
+		Low24h:                t.Low24h,
+		FundingRate:           t.FundingRate,
+		FundingRateIndicative: t.FundingRateIndicative,
+		MarkPrice:             t.MarkPrice,
+		IndexPrice:            t.IndexPrice,
+		TotalSize:             t.TotalSize,
+		Volume24h:             t.Volume24h,
+		Volume24hQuote:        t.Volume24hQuote,
+		Volume24hSettle:       t.Volume24hSettle,
+		Volume24hBase:         t.Volume24hBase,
+	}
 }
 
 type WsFuturesOrder struct {

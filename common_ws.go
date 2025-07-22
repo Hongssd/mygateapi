@@ -69,6 +69,7 @@ type WsStreamClient struct {
 	candleSubMap    MySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]        //K线推送订阅频道
 	orderBookSubMap MySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]]      //深度全量推送订阅频道
 	tradeSubMap     MySyncMap[string, *Subscription[WsSubscribeResult[WsTrade]]]          //现货trade频道推送订阅频道
+	tickerSubMap    MySyncMap[string, *Subscription[WsSubscribeResult[WsTicker]]]         //ticker频道推送订阅频道
 
 	spotOrderSubMap        MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrder]]]          //订单推送订阅频道
 	spotBalanceSubMap      MySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBalance]]]        //现货账户余额推送订阅频道
@@ -341,6 +342,8 @@ func (ws *WsStreamClient) Close() error {
 	ws.currentSubMap = NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]]()
 	ws.candleSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]]()
 	ws.orderBookSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]]()
+	ws.tradeSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTrade]]]()
+	ws.tickerSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTicker]]]()
 	//
 	//ws.spotBookTickerSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotBookTicker]]]()
 	//ws.spotOrderBookUpdateSubMap = NewMySyncMap[string, *Subscription[WsSubscribeResult[WsSpotOrderBookUpdate]]]()
@@ -404,10 +407,13 @@ type DeliveryWsStreamClient struct {
 func NewSpotWsStreamClient(client *RestClient) *SpotWsStreamClient {
 	return &SpotWsStreamClient{
 		WsStreamClient{
-			apiType:       WS_SPOT,
-			client:        client,
-			currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
-			candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+			apiType:         WS_SPOT,
+			client:          client,
+			currentSubMap:   NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
+			candleSubMap:    NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+			orderBookSubMap: NewMySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]](),
+			tradeSubMap:     NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTrade]]](),
+			tickerSubMap:    NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTicker]]](),
 		},
 	}
 }
@@ -415,11 +421,14 @@ func NewFuturesWsStreamClient(client *RestClient, contractType ContractType) *Fu
 	return &FuturesWsStreamClient{
 		FutureAndDeliveryWsStreamClient{
 			WsStreamClient{
-				apiType:       WS_FUTURES,
-				contractType:  contractType,
-				client:        client,
-				currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
-				candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+				apiType:         WS_FUTURES,
+				contractType:    contractType,
+				client:          client,
+				currentSubMap:   NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
+				candleSubMap:    NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+				orderBookSubMap: NewMySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]](),
+				tradeSubMap:     NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTrade]]](),
+				tickerSubMap:    NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTicker]]](),
 			},
 		},
 	}
@@ -429,11 +438,14 @@ func NewDeliveryWsStreamClient(client *RestClient, contractType ContractType) *D
 	return &DeliveryWsStreamClient{
 		FutureAndDeliveryWsStreamClient{
 			WsStreamClient{
-				apiType:       WS_DELIVERY,
-				contractType:  contractType,
-				client:        client,
-				currentSubMap: NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
-				candleSubMap:  NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+				apiType:         WS_DELIVERY,
+				contractType:    contractType,
+				client:          client,
+				currentSubMap:   NewMySyncMap[int64, *Subscription[WsSubscribeResult[WsSubscribeStatus]]](),
+				candleSubMap:    NewMySyncMap[string, *Subscription[WsSubscribeResult[WsCandles]]](),
+				orderBookSubMap: NewMySyncMap[string, *Subscription[WsSubscribeResult[WsOrderBook]]](),
+				tradeSubMap:     NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTrade]]](),
+				tickerSubMap:    NewMySyncMap[string, *Subscription[WsSubscribeResult[WsTicker]]](),
 			},
 		},
 	}
@@ -483,6 +495,14 @@ func (ws *WsStreamClient) sendUnSubscribeSuccessToCloseChan(reqId int64, subKeys
 				sub.closeChan = nil
 			}
 		}
+		//删除ticker订阅者
+		if sub, ok := ws.tickerSubMap.Load(key); ok {
+			ws.tickerSubMap.Delete(key)
+			if sub.closeChan != nil {
+				sub.closeChan <- struct{}{}
+				sub.closeChan = nil
+			}
+		}
 	}
 
 }
@@ -513,6 +533,18 @@ func (ws *WsStreamClient) reSubscribeForReconnect() error {
 				dataSub, ok := ws.candleSubMap.Load(subKey)
 				if ok {
 					dataSub.SubId = newSub.SubId
+				}
+				orderBookSub, ok := ws.orderBookSubMap.Load(subKey)
+				if ok {
+					orderBookSub.SubId = newSub.SubId
+				}
+				tradeSub, ok := ws.tradeSubMap.Load(subKey)
+				if ok {
+					tradeSub.SubId = newSub.SubId
+				}
+				tickerSub, ok := ws.tickerSubMap.Load(subKey)
+				if ok {
+					tickerSub.SubId = newSub.SubId
 				}
 			}
 			sub.SubId = newSub.SubId
@@ -713,6 +745,45 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 						}
 						for _, t := range ts {
 							sub.resultChan <- *t
+						}
+					}
+					continue
+				}
+				// 现货ticker推送处理
+				if strings.Contains(string(data), "spot.tickers") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[WsSpotTicker](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					t2 := convertToWsData(t, t.Result.convertToWsTicker())
+					if sub, ok := ws.tickerSubMap.Load(t2.Result.HandleSubKey()); ok {
+						if err != nil {
+							sub.errChan <- err
+							continue
+						}
+						sub.resultChan <- *t2
+					}
+					continue
+				}
+				// 期货ticker推送处理
+				if strings.Contains(string(data), "futures.tickers") && strings.Contains(string(data), "event\":\"update") {
+					t, err := handleWsData[[]WsFuturesTicker](data)
+					if err != nil {
+						log.Error(err)
+						continue
+					}
+					ts := splitSlice(t, func(o WsFuturesTicker) *WsTicker {
+						return o.convertToWsTicker()
+					})
+
+					for _, ticker := range ts {
+						if sub, ok := ws.tickerSubMap.Load(ticker.Result.HandleSubKey()); ok {
+							if err != nil {
+								sub.errChan <- err
+								continue
+							}
+							sub.resultChan <- *ticker
 						}
 					}
 					continue
