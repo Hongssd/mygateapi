@@ -557,7 +557,11 @@ func (ws *WsStreamClient) handleResult(resultChan chan []byte, errChan chan erro
 				//处理正常数据的返回结果
 				//现货K线处理
 				if strings.Contains(string(data), "spot.candlesticks") && strings.Contains(string(data), "event\":\"update") {
+					// 交易所错误返回的Amount和Volume字段是反的，需要交换
 					c, err := handleWsData[WsCandles](data)
+					tmp := c.Result.Amount
+					c.Result.Amount = c.Result.Volume
+					c.Result.Volume = tmp
 					if sub, ok := ws.candleSubMap.Load(c.Result.HandleSubKey()); ok {
 						if err != nil {
 							sub.errChan <- err
