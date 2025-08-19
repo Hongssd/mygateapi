@@ -78,6 +78,11 @@ func (client *PrivateRestClient) NewPrivateRestDeliverySettlePositionsContractLe
 }
 
 func (api *PrivateRestDeliverySettlePositionsContractLeverageAPI) Do() (*GateRestRes[PrivateRestDeliverySettlePositionsContractLeverageRes], error) {
+	// url := gateHandlerRequestAPIWithoutPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractLeverage])
+	// reqBody, err := json.Marshal(api.req)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	url := gateHandlerRequestAPIWithPathQueryParam(REST, api.req, PrivateRestAPIMap[PrivateRestDeliverySettlePositionsContractLeverage])
 	return gateCallApiWithSecret[PrivateRestDeliverySettlePositionsContractLeverageRes](api.client.c, url, NIL_REQBODY, POST)
 }

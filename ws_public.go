@@ -2,8 +2,9 @@ package mygateapi
 
 import (
 	"fmt"
-	"golang.org/x/sync/errgroup"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // K线通用订阅
@@ -269,3 +270,62 @@ func (ws *WsStreamClient) UnSubscribeOrderBookMultiple(symbols []string, USpeed,
 	_, err := subscribeOrderBookCommon(ws, false, false, symbols, USpeed, level)
 	return err
 }
+
+// tickers通用订阅
+func subscribeTickerCommon(ws *WsStreamClient, isSubscribe bool, symbols []string) (*MultipleSubscription[WsSubscribeResult[WsTicker]], error) {
+	channel := ""
+	switch ws.apiType {
+	case WS_SPOT:
+		channel = "spot.tickers"
+	case WS_FUTURES, WS_DELIVERY:
+		channel = "futures.tickers"
+	default:
+		return nil, fmt.Errorf("invalid apiType: %v", ws.apiType)
+	}
+
+	payload := symbols
+	subKeys := symbols
+
+	var thisSubs []*Subscription[WsSubscribeResult[WsTicker]]
+
+	if isSubscribe {
+		thisSub, err := subscribe[WsSubscribeResult[WsTicker]](ws, channel, SUBSCRIBE, payload, subKeys, false)
+		if err != nil {
+			return nil, err
+		}
+		for _, subKey := range subKeys {
+			ws.tickerSubMap.Store(subKey, thisSub)
+		}
+		thisSubs = append(thisSubs, thisSub)
+		subscription, err := mergeSubscription(thisSubs...)
+		if err != nil {
+			return nil, err
+		}
+		return subscription, nil
+	} else {
+		_, err := subscribe[WsSubscribeResult[WsTicker]](ws, channel, UNSUBSCRIBE, payload, subKeys, false)
+		if err != nil {
+			return nil, err
+		}
+		for _, subKey := range subKeys {
+			ws.tickerSubMap.Delete(subKey)
+		}
+		return nil, nil
+	}
+}
+
+func (ws *WsStreamClient) SubscribeTicker(symbol string) (*MultipleSubscription[WsSubscribeResult[WsTicker]], error) {
+	return ws.SubscribeTickerMultiple([]string{symbol})
+}
+func (ws *WsStreamClient) UnSubscribeTicker(symbol string) error {
+	return ws.UnSubscribeTickerMultiple([]string{symbol})
+}
+func (ws *WsStreamClient) SubscribeTickerMultiple(symbols []string) (*MultipleSubscription[WsSubscribeResult[WsTicker]], error) {
+	return subscribeTickerCommon(ws, true, symbols)
+}
+func (ws *WsStreamClient) UnSubscribeTickerMultiple(symbols []string) error {
+	_, err := subscribeTickerCommon(ws, false, symbols)
+	return err
+}
+
+//tickers通用订阅

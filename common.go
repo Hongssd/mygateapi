@@ -327,6 +327,10 @@ func gateHandlerReq[T any](req *T, isPathQuery bool, pathParams ...string) (stri
 				log.Errorf("req type error %s:%s", argName, v.Field(i).Elem().Kind())
 			}
 		} else {
+			if !isPathQuery {
+				continue
+			}
+
 			switch v.Field(i).Elem().Kind() {
 			case reflect.String:
 				argBuffer.WriteString(argName + "=" + v.Field(i).Elem().String() + "&")
