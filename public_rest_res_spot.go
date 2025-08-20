@@ -99,10 +99,10 @@ func (middle *PublicRestSpotCandlesticksMiddleRow) ConvertToRes() *PublicRestSpo
 	res := PublicRestSpotCandlesticksResRow{
 		Ts:          middle[0].(string),
 		VolCcyQuote: middle[1].(string),
-		O:           middle[2].(string),
+		C:           middle[2].(string),
 		H:           middle[3].(string),
 		L:           middle[4].(string),
-		C:           middle[5].(string),
+		O:           middle[5].(string),
 		VolCcy:      middle[6].(string),
 		Confirm:     middle[7].(string),
 	}
